@@ -4,7 +4,7 @@ import '../screens/home_screen.dart';
 import '../screens/lessons_screen.dart';
 import '../screens/practice/practice_hub_screen.dart';
 import '../screens/settings_screen.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_colors_extension.dart';
 import '../theme/app_icons.dart';
 import '../utils/responsive.dart';
 import '../widgets/star_display.dart';
@@ -25,7 +25,8 @@ class AppScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.surface,
+      backgroundColor:
+          backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
       drawer: context.isMobile ? _buildDrawer(context) : null,
       body: Column(
         children: [
@@ -49,8 +50,8 @@ class AppScaffold extends StatelessWidget {
     return Drawer(
       backgroundColor: Colors.transparent,
       child: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.primaryGradient,
+        decoration: BoxDecoration(
+          gradient: context.appColors.primaryGradient,
         ),
         child: SafeArea(
           child: Column(

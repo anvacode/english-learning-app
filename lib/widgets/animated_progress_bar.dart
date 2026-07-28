@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors_extension.dart';
 import '../utils/responsive.dart';
 
 class AnimatedProgressBar extends StatelessWidget {
@@ -31,10 +32,10 @@ class AnimatedProgressBar extends StatelessWidget {
               height: height,
               decoration: BoxDecoration(
                 borderRadius: borderRadius,
-                color: Colors.grey[200],
+                color: context.appColors.surfaceVariant,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withAlpha(13),
+                    color: context.appColors.shadow,
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),

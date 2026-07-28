@@ -6,6 +6,7 @@ import '../../logic/mastery_evaluator.dart';
 import '../../models/badge.dart' as achievement;
 import '../../models/lesson.dart';
 import '../../utils/responsive.dart';
+import '../theme/app_colors_extension.dart';
 
 class LessonCard extends StatefulWidget {
   final Lesson lesson;
@@ -43,7 +44,10 @@ class _LessonCardState extends State<LessonCard> {
       decoration: BoxDecoration(
         gradient: widget.isLocked
             ? LinearGradient(
-                colors: [Colors.grey[400]!, Colors.grey[300]!],
+                colors: [
+                  context.appColors.border,
+                  context.appColors.surfaceVariant,
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               )
@@ -52,7 +56,7 @@ class _LessonCardState extends State<LessonCard> {
         boxShadow: [
           BoxShadow(
             color: widget.isLocked
-                ? Colors.grey.withAlpha(40)
+                ? context.appColors.shadow
                 : theme.gradientColors.first.withAlpha(50),
             blurRadius: 12,
             offset: const Offset(0, 4),
@@ -225,7 +229,7 @@ class _LessonCardState extends State<LessonCard> {
           borderRadius: BorderRadius.circular(Responsive.scale(context, 8, 10, 12)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(20),
+              color: context.appColors.shadow,
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),

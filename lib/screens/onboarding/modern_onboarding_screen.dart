@@ -6,6 +6,7 @@ import '../../logic/first_time_service.dart';
 import '../../models/onboarding_page.dart';
 import '../../services/diagnostic_service.dart';
 import '../../services/tutorial_service.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/onboarding_page_widget.dart';
 import '../auth/register_screen.dart';
@@ -254,8 +255,8 @@ class _ModernOnboardingScreenState extends State<ModernOnboardingScreen>
                               foregroundColor: OnboardingPages
                                   .pages[_currentPage]
                                   .primaryColor,
-                              elevation: 8,
-                              shadowColor: Colors.black.withAlpha(76),
+                               elevation: 8,
+                               shadowColor: context.appColors.shadow,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(24),
                               ),

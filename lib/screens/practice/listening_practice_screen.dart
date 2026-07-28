@@ -9,6 +9,7 @@ import '../../logic/star_service.dart';
 import '../../models/activity_result.dart';
 import '../../models/lesson_item.dart';
 import '../../services/audio_service.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../theme/text_styles.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/animated_progress_bar.dart';
@@ -534,10 +535,10 @@ class _ListeningPracticeScreenState extends State<ListeningPracticeScreen>
               } else if (isSelected) {
                 borderColor = Colors.red;
               } else {
-                borderColor = Colors.grey[300]!;
+                borderColor = context.appColors.border;
               }
             } else {
-              borderColor = isSelected ? Colors.blue : Colors.grey[300]!;
+              borderColor = isSelected ? Colors.blue : context.appColors.border;
             }
 
             return GestureDetector(
@@ -549,7 +550,7 @@ class _ListeningPracticeScreenState extends State<ListeningPracticeScreen>
                     width: isSelected || (_answered && isCorrectOption) ? 4 : 2,
                   ),
                   borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
-                  color: Colors.white,
+                  color: context.appColors.cardBackground,
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -3,16 +3,17 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/lesson_completion.dart';
+import '../services/sync_service.dart';
 
 /// Service for managing lesson completions (mastery records).
-/// 
+///
 /// Persists successful lesson completions to SharedPreferences.
 /// This is the ONLY source of truth for determining lesson mastery.
 class LessonCompletionService {
   static const String _storageKey = 'lesson_completions';
 
   /// Save a lesson completion record.
-  /// 
+  ///
   /// Call this ONLY when a lesson is successfully completed.
   /// This represents transitioning a lesson to "Mastered" status.
   static Future<void> saveCompletion(String lessonId) async {
@@ -37,6 +38,9 @@ class LessonCompletionService {
       _storageKey,
       jsonEncode(completions.map((c) => c.toJson()).toList()),
     );
+
+    // Disparar sincronización con la nube
+    SyncService().syncUserDataDebounced();
   }
 
   /// Check if a lesson has been completed (mastered).

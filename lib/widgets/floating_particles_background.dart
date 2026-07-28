@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors_extension.dart';
+
 class FloatingParticlesBackground extends StatefulWidget {
   final Widget child;
   final int particleCount;
@@ -65,6 +67,7 @@ class _FloatingParticlesBackgroundState
                         painter: _ParticlePainter(
                           particles: _particles,
                           progress: _controller.value,
+                          baseColor: context.appColors.textPrimary,
                         ),
                         size: size,
                       );
@@ -177,9 +180,14 @@ class _ParticlePainter extends CustomPainter {
   final List<_Particle> particles;
   final double progress;
 
+  /// Color base de las partículas, adaptado al tema activo para que
+  /// sean visibles tanto en fondos claros como oscuros.
+  final Color baseColor;
+
   _ParticlePainter({
     required this.particles,
     required this.progress,
+    required this.baseColor,
   });
 
   @override
@@ -189,7 +197,7 @@ class _ParticlePainter extends CustomPainter {
       final opacity = particle.getOpacity(progress);
 
       final paint = Paint()
-        ..color = Colors.white.withAlpha((opacity * 255).toInt())
+        ..color = baseColor.withAlpha((opacity * 255).toInt())
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, particle.size * 0.3);
 
       canvas.drawCircle(pos, particle.size * 0.4, paint);
@@ -198,6 +206,7 @@ class _ParticlePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _ParticlePainter oldDelegate) {
-    return oldDelegate.progress != progress;
+    return oldDelegate.progress != progress ||
+        oldDelegate.baseColor != baseColor;
   }
 }

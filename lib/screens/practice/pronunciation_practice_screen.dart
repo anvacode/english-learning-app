@@ -4,6 +4,7 @@ import '../../data/lessons_data.dart';
 import '../../models/lesson_item.dart';
 import '../../services/speech_recognition_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../utils/responsive.dart';
 
 /// Pantalla de práctica de pronunciación
@@ -167,7 +168,7 @@ class _PronunciationPracticeScreenState
       children: List.generate(5, (index) {
         return Icon(
           index < rating ? Icons.star : Icons.star_border,
-          color: index < rating ? AppColors.starGold : Colors.grey,
+          color: index < rating ? AppColors.starGold : context.appColors.textTertiary,
           size: 40,
         );
       }),
@@ -220,7 +221,7 @@ class _PronunciationPracticeScreenState
             children: [
               LinearProgressIndicator(
                 value: (_currentIndex + 1) / _practiceWords.length,
-                backgroundColor: Colors.grey[200],
+                backgroundColor: context.appColors.surfaceVariant,
                 valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
               ),
               SizedBox(height: Responsive.scale(context, 24, 32, 36)),
@@ -228,11 +229,11 @@ class _PronunciationPracticeScreenState
                 width: Responsive.scale(context, 160, 200, 220),
                 height: Responsive.scale(context, 160, 200, 220),
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: context.appColors.surfaceVariant,
                   borderRadius: BorderRadius.circular(Responsive.scale(context, 16, 20, 24)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withAlpha(20),
+                      color: context.appColors.shadow,
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
@@ -269,7 +270,7 @@ class _PronunciationPracticeScreenState
               SizedBox(height: Responsive.scale(context, 6, 8, 10)),
               Text(
                 'Pronuncia esta palabra',
-                style: TextStyle(fontSize: Responsive.scale(context, 14, 16, 18), color: Colors.grey[600]),
+                style: TextStyle(fontSize: Responsive.scale(context, 14, 16, 18), color: context.appColors.textSecondary),
               ),
               SizedBox(height: Responsive.scale(context, 28, 40, 44)),
               if (_hasResult && _lastResult != null) ...[
@@ -290,7 +291,7 @@ class _PronunciationPracticeScreenState
                     'Escuchado: "${_lastResult!.recognizedText}"',
                     style: TextStyle(
                       fontSize: Responsive.scale(context, 14, 16, 18),
-                      color: Colors.grey[600],
+                      color: context.appColors.textSecondary,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -359,7 +360,7 @@ class _PronunciationPracticeScreenState
                   _statusMessage,
                   style: TextStyle(
                     fontSize: Responsive.scale(context, 16, 18, 20),
-                    color: Colors.grey[700],
+                    color: context.appColors.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.center,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/diagnostic_questions_data.dart';
 import '../../models/diagnostic_question.dart';
 import '../../services/diagnostic_service.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../utils/responsive.dart';
 import 'diagnostic_result_screen.dart';
 
@@ -235,24 +236,24 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
                   horizontal: spacing * 1.5,
                   vertical: spacing,
                 ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(Responsive.scale(context, 20, 24, 28)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(25),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  _currentQuestion.question,
-                  style: TextStyle(
-                    fontSize: largeFontSize,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF333333),
-                  ),
+                 decoration: BoxDecoration(
+                   color: context.appColors.cardBackground,
+                   borderRadius: BorderRadius.circular(Responsive.scale(context, 20, 24, 28)),
+                   boxShadow: [
+                     BoxShadow(
+                       color: context.appColors.shadow,
+                       blurRadius: 20,
+                       offset: const Offset(0, 10),
+                     ),
+                   ],
+                 ),
+                 child: Text(
+                   _currentQuestion.question,
+                   style: TextStyle(
+                     fontSize: largeFontSize,
+                     fontWeight: FontWeight.bold,
+                     color: context.appColors.textPrimary,
+                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -286,23 +287,23 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
       onTap: () => _selectAnswer(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF4CAF50) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? const Color(0xFF4CAF50) : Colors.grey.shade300,
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? const Color(0xFF4CAF50).withAlpha(100)
-                  : Colors.black.withAlpha(15),
-              blurRadius: isSelected ? 12 : 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+         decoration: BoxDecoration(
+           color: isSelected ? const Color(0xFF4CAF50) : context.appColors.cardBackground,
+           borderRadius: BorderRadius.circular(16),
+           border: Border.all(
+             color: isSelected ? const Color(0xFF4CAF50) : context.appColors.border,
+             width: 2,
+           ),
+           boxShadow: [
+             BoxShadow(
+               color: isSelected
+                   ? const Color(0xFF4CAF50).withAlpha(100)
+                   : context.appColors.shadow,
+               blurRadius: isSelected ? 12 : 6,
+               offset: const Offset(0, 3),
+             ),
+           ],
+         ),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -311,7 +312,7 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
               style: TextStyle(
                 fontSize: size * 0.55,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : Colors.grey.shade800,
+                 color: isSelected ? Colors.white : context.appColors.textPrimary,
               ),
               textAlign: TextAlign.center,
               maxLines: 1,
@@ -358,7 +359,7 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.amber,
             foregroundColor: Colors.white,
-            disabledBackgroundColor: Colors.grey.shade300,
+             disabledBackgroundColor: context.appColors.surfaceVariant,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
             ),

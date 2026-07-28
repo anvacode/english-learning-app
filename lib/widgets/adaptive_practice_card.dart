@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/practice_activity.dart';
+import '../theme/app_colors_extension.dart';
 import '../theme/text_styles.dart';
 import '../utils/responsive.dart';
 
@@ -109,18 +110,18 @@ class _AdaptivePracticeCardState extends State<AdaptivePracticeCard>
         curve: Curves.easeOutCubic,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appColors.cardBackground,
             borderRadius: BorderRadius.circular(borderRadius),
             border: Border.all(
               color: widget.isUnlocked
                   ? activityColor.withAlpha(30)
-                  : Colors.grey.withAlpha(25),
+                  : context.appColors.border,
             ),
             boxShadow: [
               BoxShadow(
                 color: widget.isUnlocked
                     ? activityColor.withAlpha(_isHovered ? 35 : 15)
-                    : Colors.black.withAlpha(10),
+                    : context.appColors.shadow,
                 blurRadius: _isHovered ? 16 : 8,
                 offset: Offset(0, _isHovered ? 6 : 3),
               ),
@@ -167,8 +168,8 @@ class _AdaptivePracticeCardState extends State<AdaptivePracticeCard>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.grey[400]!,
-                  Colors.grey[300]!,
+                  context.appColors.border,
+                  context.appColors.surfaceVariant,
                 ],
               ),
       ),
@@ -190,7 +191,7 @@ class _AdaptivePracticeCardState extends State<AdaptivePracticeCard>
               decoration: BoxDecoration(
                 color: widget.isUnlocked
                     ? activityColor.withAlpha(15)
-                    : Colors.grey[100]!,
+                    : context.appColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(emojiSize / 2),
               ),
               alignment: Alignment.center,
@@ -231,7 +232,7 @@ class _AdaptivePracticeCardState extends State<AdaptivePracticeCard>
                           decoration: BoxDecoration(
                             color: widget.isUnlocked
                                 ? activityColor.withAlpha(20)
-                                : Colors.grey[200]!,
+                                : context.appColors.surfaceVariant,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -243,7 +244,7 @@ class _AdaptivePracticeCardState extends State<AdaptivePracticeCard>
                               fontWeight: FontWeight.w600,
                               color: widget.isUnlocked
                                   ? activityColor
-                                  : Colors.grey[600],
+                                  : context.appColors.textSecondary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -277,7 +278,7 @@ class _AdaptivePracticeCardState extends State<AdaptivePracticeCard>
           child: Icon(
             index < stars ? Icons.star : Icons.star_border,
             size: starSize,
-            color: index < stars ? Colors.amber : Colors.grey[300],
+            color: index < stars ? Colors.amber : context.appColors.border,
           ),
         ),
       ),
@@ -297,7 +298,7 @@ class _AdaptivePracticeCardState extends State<AdaptivePracticeCard>
             return Container(
               height: 3,
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: context.appColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Align(

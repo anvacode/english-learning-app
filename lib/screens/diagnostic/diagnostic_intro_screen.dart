@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_colors_extension.dart';
 import 'diagnostic_test_screen.dart';
 
 class DiagnosticIntroScreen extends StatefulWidget {
@@ -104,32 +105,32 @@ class _DiagnosticIntroScreenState extends State<DiagnosticIntroScreen>
       decoration: BoxDecoration(
         color: Colors.white.withAlpha(30),
         shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(20),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-          ),
-        ],
+         boxShadow: [
+           BoxShadow(
+             color: context.appColors.shadow,
+             blurRadius: 30,
+             offset: const Offset(0, 15),
+           ),
+         ],
       ),
       child: const Center(child: Text('📝', style: TextStyle(fontSize: 60))),
     );
   }
 
-  Widget _buildTitle() {
-    return const Text(
-      'Prueba de Nivel',
-      style: TextStyle(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-        shadows: [
-          Shadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
-        ],
-      ),
-      textAlign: TextAlign.center,
-    );
-  }
+   Widget _buildTitle() {
+     return Text(
+       'Prueba de Nivel',
+       style: TextStyle(
+         fontSize: 32,
+         fontWeight: FontWeight.bold,
+         color: Colors.white,
+         shadows: [
+           Shadow(color: context.appColors.shadow, blurRadius: 10, offset: const Offset(0, 4)),
+         ],
+       ),
+       textAlign: TextAlign.center,
+     );
+   }
 
   Widget _buildDescription() {
     return Container(
@@ -192,8 +193,8 @@ class _DiagnosticIntroScreenState extends State<DiagnosticIntroScreen>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          elevation: 8,
-          shadowColor: Colors.black.withAlpha(50),
+           elevation: 8,
+           shadowColor: context.appColors.shadow,
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,

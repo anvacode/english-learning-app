@@ -6,14 +6,14 @@ import 'package:provider/provider.dart';
 
 import 'logic/auth_provider.dart';
 import 'logic/lesson_controller.dart';
+import 'logic/theme_provider.dart';
 import 'screens/splash_screen.dart';
 import 'services/audio_service.dart';
 import 'services/connectivity_service.dart';
 import 'services/firebase_service.dart';
 import 'services/sync_queue_service.dart';
 import 'services/sync_service.dart';
-import 'theme/app_colors.dart';
-import 'theme/app_fonts.dart';
+import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,22 +88,25 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => LessonController()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider.value(
           value: ConnectivityService(),
         ),
       ],
-      child: MaterialApp(
-        title: 'ELA',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: AppColors.primary,
-            brightness: Brightness.light,
-          ),
-          useMaterial3: true,
-          fontFamily: AppFonts.family,
-        ),
-        home: const SplashScreen(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          // MaterialApp interpola automáticamente los colores del tema
+          // (AnimatedTheme) cuando cambia entre claro y oscuro, por lo que
+          // la transición se ve suave en toda la app.
+          return MaterialApp(
+            title: 'ELA',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.mode,
+            home: const SplashScreen(),
+          );
+        },
       ),
     );
   }

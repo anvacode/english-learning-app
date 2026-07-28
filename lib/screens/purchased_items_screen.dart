@@ -5,6 +5,7 @@ import '../models/shop_item.dart';
 import '../services/effects_service.dart';
 import '../services/powerup_service.dart';
 import '../services/shop_service.dart';
+import '../theme/app_colors_extension.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/avatar_widget.dart';
 import '../widgets/responsive_snack_bar.dart';
@@ -177,7 +178,7 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: isActive ? Colors.amber[100] : Colors.grey[100],
+                color: isActive ? Colors.amber[100] : context.appColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -246,7 +247,7 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
                                 colors: [Colors.orange[400]!, Colors.amber[600]!],
                               )
                             : null,
-                        color: isActive ? null : Colors.grey[200],
+                        color: isActive ? null : context.appColors.surfaceVariant,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
@@ -271,7 +272,7 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
                           Text(
                             powerUp.description,
                             style: TextStyle(
-                              color: Colors.grey[600],
+                              color: context.appColors.textSecondary,
                               fontSize: 14,
                             ),
                           ),
@@ -306,9 +307,9 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
                         size: 28,
                       )
                     else
-                      const Icon(
+                      Icon(
                         Icons.timer_off,
-                        color: Colors.grey,
+                        color: context.appColors.textSecondary,
                         size: 28,
                       ),
                   ],
@@ -332,14 +333,14 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 64, color: Colors.grey[400]),
+            Icon(icon, size: 64, color: context.appColors.textTertiary),
             const SizedBox(height: 16),
             Text(
               message,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
+                color: context.appColors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -348,7 +349,7 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
               hint,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[500],
+                color: context.appColors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),

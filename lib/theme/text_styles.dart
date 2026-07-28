@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/responsive.dart';
 import 'app_colors.dart';
+import 'app_colors_extension.dart';
 
 /// Estilos de texto modernos y amigables para niños.
 ///
@@ -17,7 +18,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 28, 32, 36),
       fontWeight: FontWeight.bold,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       height: 1.2,
       letterSpacing: -0.5,
     );
@@ -28,7 +29,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 24, 28, 32),
       fontWeight: FontWeight.bold,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       height: 1.3,
       letterSpacing: -0.3,
     );
@@ -39,7 +40,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 20, 24, 28),
       fontWeight: FontWeight.w700,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       height: 1.3,
     );
   }
@@ -53,7 +54,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 18, 20, 22),
       fontWeight: FontWeight.bold,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       height: 1.2,
     );
   }
@@ -63,7 +64,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 14, 15, 16),
       fontWeight: FontWeight.w600,
-      color: AppColors.textSecondary,
+      color: context.appColors.textSecondary,
       height: 1.3,
     );
   }
@@ -77,7 +78,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.baseFontSize(context),
       fontWeight: FontWeight.normal,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       height: 1.6,
     );
   }
@@ -87,7 +88,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 16, 17, 18),
       fontWeight: FontWeight.normal,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       height: 1.6,
     );
   }
@@ -97,7 +98,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 14, 15, 16),
       fontWeight: FontWeight.normal,
-      color: AppColors.textSecondary,
+      color: context.appColors.textSecondary,
       height: 1.5,
     );
   }
@@ -107,7 +108,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.smallFontSize(context),
       fontWeight: FontWeight.normal,
-      color: AppColors.textTertiary,
+      color: context.appColors.textTertiary,
       height: 1.4,
     );
   }
@@ -158,7 +159,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 36, 40, 44),
       fontWeight: FontWeight.bold,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       height: 1.0,
     );
   }
@@ -185,7 +186,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 12, 13, 14),
       fontWeight: FontWeight.w600,
-      color: AppColors.textSecondary,
+      color: context.appColors.textSecondary,
       letterSpacing: 0.3,
     );
   }
@@ -195,7 +196,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 12, 13, 14),
       fontWeight: FontWeight.bold,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       letterSpacing: 0.3,
     );
   }
@@ -219,7 +220,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 11, 12, 13),
       fontWeight: FontWeight.w600,
-      color: AppColors.textSecondary,
+      color: context.appColors.textSecondary,
     );
   }
 
@@ -232,7 +233,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 28, 32, 36),
       fontWeight: FontWeight.bold,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       height: 1.2,
       letterSpacing: -0.5,
     );
@@ -243,7 +244,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 16, 17, 18),
       fontWeight: FontWeight.normal,
-      color: AppColors.textSecondary,
+      color: context.appColors.textSecondary,
       height: 1.6,
     );
   }
@@ -257,7 +258,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 20, 22, 24),
       fontWeight: FontWeight.bold,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       height: 1.3,
     );
   }
@@ -267,7 +268,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 16, 17, 18),
       fontWeight: FontWeight.w600,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       height: 1.3,
     );
   }
@@ -297,7 +298,7 @@ class AppTextStyles {
     return GoogleFonts.fredoka(
       fontSize: Responsive.scale(context, 15, 16, 17),
       fontWeight: FontWeight.w500,
-      color: AppColors.textPrimary,
+      color: context.appColors.textPrimary,
       height: 1.4,
     );
   }

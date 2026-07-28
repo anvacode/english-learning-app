@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../logic/star_service.dart';
 import '../models/shop_item.dart';
 import '../services/shop_service.dart';
+import '../theme/app_colors_extension.dart';
 import '../utils/responsive.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/error_dialog.dart';
@@ -90,7 +91,7 @@ class _ShopScreenState extends State<ShopScreen> with SingleTickerProviderStateM
               const SizedBox(height: 4),
               Text(
                 item.description,
-                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                style: TextStyle(color: context.appColors.textSecondary, fontSize: 14),
               ),
               const SizedBox(height: 16),
               Container(
@@ -107,7 +108,7 @@ class _ShopScreenState extends State<ShopScreen> with SingleTickerProviderStateM
                       'Precio:',
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.grey[700],
+                        color: context.appColors.textPrimary,
                       ),
                     ),
                     Text(
@@ -127,7 +128,7 @@ class _ShopScreenState extends State<ShopScreen> with SingleTickerProviderStateM
                 children: [
                   Text(
                     'Tu balance:',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 14, color: context.appColors.textSecondary),
                   ),
                   Text(
                     '$_totalStars ⭐',
@@ -146,7 +147,7 @@ class _ShopScreenState extends State<ShopScreen> with SingleTickerProviderStateM
               onPressed: () => Navigator.pop(context, false),
               child: Text(
                 'Cancelar',
-                style: TextStyle(color: Colors.grey[600]),
+                style: TextStyle(color: context.appColors.textSecondary),
               ),
             ),
             ElevatedButton(
@@ -230,7 +231,7 @@ class _ShopScreenState extends State<ShopScreen> with SingleTickerProviderStateM
               style: TextStyle(
                 fontSize: Responsive.scale(context, 16, 18, 20),
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[600],
+                color: context.appColors.textSecondary,
               ),
             ),
             const SizedBox(height: 8),

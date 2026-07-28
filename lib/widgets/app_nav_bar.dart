@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/app_colors_extension.dart';
 import '../theme/app_icons.dart';
 import '../utils/responsive.dart';
 import '../widgets/star_display.dart';
@@ -27,13 +27,13 @@ class _AppNavBarState extends State<AppNavBar> {
     final iconSize = Responsive.scale(context, 22.0, 24.0, 26.0);
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.primaryGradient,
+      decoration: BoxDecoration(
+        gradient: context.appColors.primaryGradient,
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
+            color: context.appColors.shadow,
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../logic/star_service.dart';
+import '../theme/app_colors_extension.dart';
 
 /// Widget reutilizable para mostrar el contador de estrellas.
 /// 
@@ -15,7 +16,7 @@ class StarDisplay extends StatefulWidget {
   /// Color del ícono. Por defecto: Colors.amber
   final Color? iconColor;
   
-  /// Color del texto. Por defecto: Colors.black87
+  /// Color del texto. Por defecto: color de texto primario del tema
   final Color? textColor;
   
   /// Si muestra solo el ícono sin el número. Por defecto: false
@@ -84,7 +85,7 @@ class _StarDisplayState extends State<StarDisplay> {
   @override
   Widget build(BuildContext context) {
     final iconColor = widget.iconColor ?? Colors.amber[700] ?? Colors.amber;
-    final textColor = widget.textColor ?? Colors.black87;
+    final textColor = widget.textColor ?? context.appColors.textPrimary;
 
     if (_isLoading) {
       return SizedBox(

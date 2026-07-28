@@ -19,6 +19,7 @@ class UserProfile {
   final int totalSessions;
   final DateTime? lastActive;
   final Map<String, LessonProgress> progress;
+  final DateTime? lastUpdated;
 
   const UserProfile({
     required this.nickname,
@@ -28,6 +29,7 @@ class UserProfile {
     this.totalSessions = 0,
     this.lastActive,
     this.progress = const {},
+    this.lastUpdated,
   });
 
   factory UserProfile.defaultProfile() {
@@ -35,6 +37,7 @@ class UserProfile {
       nickname: 'Estudiante',
       avatarId: 0,
       createdAt: DateTime.now(),
+      lastUpdated: DateTime.now(),
     );
   }
 
@@ -46,6 +49,7 @@ class UserProfile {
     int? totalSessions,
     DateTime? lastActive,
     Map<String, LessonProgress>? progress,
+    DateTime? lastUpdated,
     bool clearEnglishLevel = false,
   }) {
     return UserProfile(
@@ -58,6 +62,7 @@ class UserProfile {
       totalSessions: totalSessions ?? this.totalSessions,
       lastActive: lastActive ?? this.lastActive,
       progress: progress ?? this.progress,
+      lastUpdated: lastUpdated ?? DateTime.now(),
     );
   }
 
@@ -75,6 +80,7 @@ class UserProfile {
       'totalSessions': totalSessions,
       if (lastActive != null) 'lastActive': lastActive!.toIso8601String(),
       if (progressMap.isNotEmpty) 'progress': progressMap,
+      if (lastUpdated != null) 'lastUpdated': lastUpdated!.toIso8601String(),
     };
   }
 
@@ -98,6 +104,7 @@ class UserProfile {
       totalSessions: json['totalSessions'] as int? ?? 0,
       lastActive: _parseTimestamp(json['lastActive']),
       progress: parsedProgress,
+      lastUpdated: _parseTimestamp(json['lastUpdated']),
     );
   }
 

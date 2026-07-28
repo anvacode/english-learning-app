@@ -55,8 +55,8 @@ class _SplashScreenState extends State<SplashScreen>
 
     final authProvider = context.read<AuthProvider>();
 
-    // Wait for auth state to be ready
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Wait for auth state to be ready (no fixed delay, use the authReady future)
+    await authProvider.authReady;
 
     // Verificar estados
     final prefs = await SharedPreferences.getInstance();

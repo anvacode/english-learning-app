@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../services/effects_service.dart';
+import '../theme/app_colors_extension.dart';
 import '../utils/responsive.dart';
 import '../utils/safe_math.dart';
 import '../widgets/confetti_overlay.dart';
@@ -271,7 +272,7 @@ class _LessonCompletionScreenState extends State<LessonCompletionScreen>
       style: TextStyle(
         fontSize: Responsive.scale(context, 15.0, 16.0, 18.0),
         fontWeight: FontWeight.w600,
-        color: Colors.grey[700],
+        color: context.appColors.textPrimary,
       ),
       textAlign: TextAlign.center,
       maxLines: 2,
@@ -323,10 +324,10 @@ class _LessonCompletionScreenState extends State<LessonCompletionScreen>
     return Container(
       padding: EdgeInsets.all(Responsive.scale(context, 16.0, 18.0, 20.0)),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(Responsive.borderRadius(context) + 4),
         boxShadow: [
-          BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 10, offset: const Offset(0, 2)),
+          BoxShadow(color: context.appColors.shadow, blurRadius: 10, offset: const Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -337,7 +338,7 @@ class _LessonCompletionScreenState extends State<LessonCompletionScreen>
               Flexible(
                 child: Text(
                   'Respuestas correctas:',
-                  style: TextStyle(fontSize: Responsive.scale(context, 14.0, 15.0, 16.0), color: Colors.grey),
+                  style: TextStyle(fontSize: Responsive.scale(context, 14.0, 15.0, 16.0), color: context.appColors.textSecondary),
                 ),
               ),
               Text(
@@ -353,7 +354,7 @@ class _LessonCompletionScreenState extends State<LessonCompletionScreen>
           SizedBox(height: Responsive.scale(context, 10.0, 12.0, 14.0)),
           LinearProgressIndicator(
             value: safeDivideDouble(widget.correctAnswers.toDouble(), widget.totalQuestions.toDouble()),
-            backgroundColor: Colors.grey[200],
+            backgroundColor: context.appColors.surfaceVariant,
             color: widget.isPerfectScore ? Colors.green : Colors.deepPurple,
             minHeight: Responsive.scale(context, 8.0, 10.0, 12.0),
             borderRadius: BorderRadius.circular(4),
@@ -364,7 +365,7 @@ class _LessonCompletionScreenState extends State<LessonCompletionScreen>
             style: TextStyle(
               fontSize: Responsive.scale(context, 13.0, 14.0, 15.0),
               fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
+              color: context.appColors.textPrimary,
             ),
           ),
         ],

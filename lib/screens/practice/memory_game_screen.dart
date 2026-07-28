@@ -9,6 +9,7 @@ import '../../logic/practice_service.dart';
 import '../../logic/star_service.dart';
 import '../../models/activity_result.dart';
 import '../../services/audio_service.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../theme/text_styles.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/animated_progress_bar.dart';
@@ -485,7 +486,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> with SingleTickerPr
           color: card.isMatched
               ? Colors.green[100]
               : card.isFlipped
-                  ? Colors.white
+                  ? context.appColors.cardBackground
                   : Colors.purple,
           borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
           border: Border.all(
@@ -498,7 +499,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> with SingleTickerPr
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(26),
+              color: context.appColors.shadow,
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),

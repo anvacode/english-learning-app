@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/diagnostic_result.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../widgets/app_scaffold.dart';
 import '../home_screen.dart';
 
@@ -78,7 +79,7 @@ class _DiagnosticResultScreenState extends State<DiagnosticResultScreen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [_levelColor.withAlpha(40), Colors.white],
+             colors: [_levelColor.withAlpha(40), context.appColors.background],
           ),
         ),
         child: FadeTransition(
@@ -111,17 +112,17 @@ class _DiagnosticResultScreenState extends State<DiagnosticResultScreen>
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: _levelColor.withAlpha(40),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-          ),
-        ],
-      ),
+       decoration: BoxDecoration(
+         color: context.appColors.cardBackground,
+         borderRadius: BorderRadius.circular(28),
+         boxShadow: [
+           BoxShadow(
+             color: _levelColor.withAlpha(40),
+             blurRadius: 30,
+             offset: const Offset(0, 15),
+           ),
+         ],
+       ),
       child: Column(
         children: [
           Container(
@@ -136,14 +137,14 @@ class _DiagnosticResultScreenState extends State<DiagnosticResultScreen>
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            '🎉 Great Job!',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF333333),
-            ),
-          ),
+           Text(
+             '🎉 Great Job!',
+             style: TextStyle(
+               fontSize: 32,
+               fontWeight: FontWeight.bold,
+               color: context.appColors.textPrimary,
+             ),
+           ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -161,11 +162,11 @@ class _DiagnosticResultScreenState extends State<DiagnosticResultScreen>
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            _levelDescription,
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-            textAlign: TextAlign.center,
-          ),
+           Text(
+             _levelDescription,
+             style: TextStyle(fontSize: 16, color: context.appColors.textSecondary),
+             textAlign: TextAlign.center,
+           ),
         ],
       ),
     );
@@ -174,36 +175,36 @@ class _DiagnosticResultScreenState extends State<DiagnosticResultScreen>
   Widget _buildScoreCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.star, color: Colors.amber, size: 32),
-          const SizedBox(width: 12),
-          Text(
-            '${widget.result.score} / ${widget.result.totalQuestions}',
-            style: TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-              color: _levelColor,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            'correct',
-            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-          ),
+       padding: const EdgeInsets.all(24),
+       decoration: BoxDecoration(
+         color: context.appColors.cardBackground,
+         borderRadius: BorderRadius.circular(20),
+         boxShadow: [
+           BoxShadow(
+             color: context.appColors.shadow,
+             blurRadius: 15,
+             offset: const Offset(0, 8),
+           ),
+         ],
+       ),
+       child: Row(
+         mainAxisAlignment: MainAxisAlignment.center,
+         children: [
+           const Icon(Icons.star, color: Colors.amber, size: 32),
+           const SizedBox(width: 12),
+           Text(
+             '${widget.result.score} / ${widget.result.totalQuestions}',
+             style: TextStyle(
+               fontSize: 36,
+               fontWeight: FontWeight.bold,
+               color: _levelColor,
+             ),
+           ),
+           const SizedBox(width: 12),
+           Text(
+             'correct',
+             style: TextStyle(fontSize: 18, color: context.appColors.textSecondary),
+           ),
         ],
       ),
     );
@@ -212,35 +213,35 @@ class _DiagnosticResultScreenState extends State<DiagnosticResultScreen>
   Widget _buildRecommendations() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.playlist_play, color: _levelColor, size: 24),
-              const SizedBox(width: 10),
-              const Text(
-                'Recommended Lessons',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF333333),
-                ),
-              ),
-            ],
-          ),
+       padding: const EdgeInsets.all(24),
+       decoration: BoxDecoration(
+         color: context.appColors.cardBackground,
+         borderRadius: BorderRadius.circular(20),
+         boxShadow: [
+           BoxShadow(
+             color: context.appColors.shadow,
+             blurRadius: 15,
+             offset: const Offset(0, 8),
+           ),
+         ],
+       ),
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           Row(
+             children: [
+               Icon(Icons.playlist_play, color: _levelColor, size: 24),
+               const SizedBox(width: 10),
+               Text(
+                 'Recommended Lessons',
+                 style: TextStyle(
+                   fontSize: 18,
+                   fontWeight: FontWeight.bold,
+                   color: context.appColors.textPrimary,
+                 ),
+               ),
+             ],
+           ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 10,

@@ -9,6 +9,7 @@ import '../logic/auth_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../services/firestore_progress_service.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_colors_extension.dart';
 import '../utils/responsive.dart';
 import '../utils/web_download.dart' as web_download;
 import '../widgets/responsive_container.dart';
@@ -105,7 +106,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ResponsiveSnackBar.showInfo(
           context,
           message: 'Descarga web no disponible. Contenido CSV generado para $fileName',
-          duration: const Duration(seconds: 3),
         );
       }
     }
@@ -138,10 +138,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Panel de Admin'),
+     return Scaffold(
+       appBar: AppBar(
+         title: const Text('Panel de Admin'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         actions: [
@@ -287,84 +286,84 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final data = _stats.sessionsLast7Days;
     final hasData = data.any((d) => d.count > 0);
 
-    return Card(
-      color: AppColors.surface,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: AppColors.border),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.show_chart, size: 18, color: AppColors.primary),
-                SizedBox(width: 6),
-                Text(
-                  'Sesiones · últimos 7 días',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 140,
-              width: double.infinity,
-              child: hasData
-                  ? CustomPaint(
-                      painter: _SessionsChartPainter(data),
-                    )
-                  : const Center(
-                      child: Text(
-                        'Aún no hay sesiones registradas por día',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textTertiary,
-                        ),
-                      ),
-                    ),
-            ),
-          ],
-        ),
-      ),
-    );
+     return Card(
+       color: context.appColors.cardBackground,
+       elevation: 0,
+       shape: RoundedRectangleBorder(
+         borderRadius: BorderRadius.circular(12),
+         side: BorderSide(color: context.appColors.border),
+       ),
+       child: Padding(
+         padding: const EdgeInsets.all(14),
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: [
+             Row(
+               children: [
+                 const Icon(Icons.show_chart, size: 18, color: AppColors.primary),
+                 const SizedBox(width: 6),
+                 Text(
+                   'Sesiones · últimos 7 días',
+                   style: TextStyle(
+                     fontSize: 14,
+                     fontWeight: FontWeight.w600,
+                     color: context.appColors.textPrimary,
+                   ),
+                 ),
+               ],
+             ),
+             const SizedBox(height: 12),
+             SizedBox(
+               height: 140,
+               width: double.infinity,
+               child: hasData
+                   ? CustomPaint(
+                       painter: _SessionsChartPainter(data),
+                     )
+                   : Center(
+                       child: Text(
+                         'Aún no hay sesiones registradas por día',
+                         style: TextStyle(
+                           fontSize: 13,
+                           color: context.appColors.textTertiary,
+                         ),
+                       ),
+                     ),
+             ),
+           ],
+         ),
+       ),
+     );
   }
 
   Widget _buildSearchBar() {
     return TextField(
       controller: _searchController,
       style: const TextStyle(fontSize: 15),
-      decoration: InputDecoration(
-        hintText: 'Buscar usuario...',
-        hintStyle: const TextStyle(fontSize: 15),
-        prefixIcon: const Icon(Icons.search, size: 18, color: Colors.grey),
-        suffixIcon: _searchController.text.isNotEmpty
-            ? IconButton(
-                icon: const Icon(Icons.clear, size: 16, color: Colors.grey),
-                onPressed: () {
-                  _searchController.clear();
-                  _filterUsers('');
-                },
-              )
-            : null,
-        filled: true,
-        fillColor: Colors.white,
-        isDense: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
+       decoration: InputDecoration(
+         hintText: 'Buscar usuario...',
+         hintStyle: const TextStyle(fontSize: 15),
+         prefixIcon: Icon(Icons.search, size: 18, color: context.appColors.textSecondary),
+         suffixIcon: _searchController.text.isNotEmpty
+             ? IconButton(
+                 icon: Icon(Icons.clear, size: 16, color: context.appColors.textSecondary),
+                 onPressed: () {
+                   _searchController.clear();
+                   _filterUsers('');
+                 },
+               )
+             : null,
+         filled: true,
+         fillColor: context.appColors.cardBackground,
+         isDense: true,
+         border: OutlineInputBorder(
+           borderRadius: BorderRadius.circular(10),
+           borderSide: BorderSide(color: context.appColors.border),
+         ),
+         enabledBorder: OutlineInputBorder(
+           borderRadius: BorderRadius.circular(10),
+           borderSide: BorderSide(color: context.appColors.border),
+         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
@@ -381,30 +380,30 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 2, bottom: 6),
-          child: Text(
-            'Usuarios (${_filteredUsers.length})',
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
+           child: Text(
+             'Usuarios (${_filteredUsers.length})',
+             style: TextStyle(
+               fontSize: 15,
+               fontWeight: FontWeight.w600,
+               color: context.appColors.textPrimary,
+             ),
+           ),
         ),
         if (_filteredUsers.isEmpty)
           Card(
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
-                children: [
-                  Icon(Icons.person_off, size: 36, color: Colors.grey[400]),
-                  const SizedBox(height: 8),
-                  Text(
-                    _searchController.text.isNotEmpty
-                        ? 'Sin resultados'
-                        : 'Sin usuarios registrados',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  ),
-                ],
+                 children: [
+                   Icon(Icons.person_off, size: 36, color: context.appColors.textTertiary),
+                   const SizedBox(height: 8),
+                   Text(
+                     _searchController.text.isNotEmpty
+                         ? 'Sin resultados'
+                         : 'Sin usuarios registrados',
+                     style: TextStyle(fontSize: 14, color: context.appColors.textSecondary),
+                   ),
+                 ],
               ),
             ),
           )
@@ -548,28 +547,28 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      if (widget.nickname != null)
-                        Text(
-                          widget.email,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                        ),
+                       if (widget.nickname != null)
+                         Text(
+                           widget.email,
+                           style: TextStyle(
+                             fontSize: 16,
+                             color: context.appColors.textSecondary,
+                           ),
+                         ),
                     ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              'UID: ${widget.uid}',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[400],
-                fontFamily: 'monospace',
-              ),
-            ),
+             Text(
+               'UID: ${widget.uid}',
+               style: TextStyle(
+                 fontSize: 13,
+                 color: context.appColors.textTertiary,
+                 fontFamily: 'monospace',
+               ),
+             ),
           ],
         ),
       ),
@@ -583,9 +582,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(Icons.analytics, color: Colors.grey[700]),
+             Row(
+               children: [
+                 Icon(Icons.analytics, color: context.appColors.textPrimary),
                 const SizedBox(width: 8),
                 const Text(
                   'Frecuencia de Uso',
@@ -618,6 +617,30 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _StatBox(
+                    icon: Icons.local_fire_department,
+                    label: 'Racha de login',
+                    value: '${_metrics!.loginStreak} días',
+                    color: Colors.orange,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _StatBox(
+                    icon: Icons.calendar_today,
+                    label: 'Último login',
+                    value: _metrics!.lastLoginDate != null
+                        ? '${_metrics!.lastLoginDate!.day}/${_metrics!.lastLoginDate!.month}/${_metrics!.lastLoginDate!.year}'
+                        : 'Nunca',
+                    color: Colors.purple,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -632,14 +655,14 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
-            children: [
-              Icon(Icons.school_outlined, size: 48, color: Colors.grey[400]),
-              const SizedBox(height: 12),
-              Text(
-                'Aún no hay progreso de lecciones',
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-            ],
+             children: [
+               Icon(Icons.school_outlined, size: 48, color: context.appColors.textTertiary),
+               const SizedBox(height: 12),
+               Text(
+                 'Aún no hay progreso de lecciones',
+                 style: TextStyle(color: context.appColors.textSecondary),
+               ),
+             ],
           ),
         ),
       );
@@ -693,46 +716,53 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppColors.cardShadow,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Icon(icon, color: color, size: 16),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
-              height: 1.1,
-            ),
-          ),
+     return Container(
+       decoration: BoxDecoration(
+         color: context.appColors.cardBackground,
+         borderRadius: BorderRadius.circular(12),
+         border: Border.all(color: context.appColors.border),
+         boxShadow: [
+           BoxShadow(
+             color: context.appColors.shadow,
+             blurRadius: 16,
+             offset: const Offset(0, 4),
+             spreadRadius: -4,
+           ),
+         ],
+       ),
+       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         mainAxisAlignment: MainAxisAlignment.center,
+         children: [
+           Row(
+             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+             children: [
+               Flexible(
+                 child: Text(
+                   label,
+                   style: TextStyle(
+                     fontSize: 13,
+                     color: context.appColors.textSecondary,
+                     fontWeight: FontWeight.w500,
+                   ),
+                   maxLines: 1,
+                   overflow: TextOverflow.ellipsis,
+                 ),
+               ),
+               Icon(icon, color: color, size: 16),
+             ],
+           ),
+           const SizedBox(height: 4),
+           Text(
+             value,
+             style: TextStyle(
+               fontSize: 24,
+               fontWeight: FontWeight.w500,
+               color: context.appColors.textPrimary,
+               height: 1.1,
+             ),
+           ),
           if (trend != null) ...[
             const SizedBox(height: 2),
             Row(
@@ -794,13 +824,13 @@ class _StatBox extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
-          ),
+           Text(
+             label,
+             style: TextStyle(
+               fontSize: 14,
+               color: context.appColors.textSecondary,
+             ),
+           ),
         ],
       ),
     );
@@ -896,25 +926,46 @@ class _UserTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        '${user.totalSessions} sesiones · ${formatDate(user.lastActive)}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textTertiary,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                       Text(
+                          '${user.totalSessions} sesiones · ${formatDate(user.lastActive)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.appColors.textTertiary,
+                          ),
+                         maxLines: 1,
+                         overflow: TextOverflow.ellipsis,
+                       ),
+                       if (user.loginStreak > 0) ...[
+                         const SizedBox(height: 2),
+                         Row(
+                           children: [
+                             const Icon(
+                               Icons.local_fire_department,
+                               size: 12,
+                               color: Colors.orange,
+                             ),
+                             const SizedBox(width: 3),
+                             Text(
+                               'Racha: ${user.loginStreak} días',
+                               style: TextStyle(
+                                 fontSize: 11,
+                                 color: Colors.orange.shade700,
+                                 fontWeight: FontWeight.w600,
+                               ),
+                             ),
+                           ],
+                         ),
+                       ],
                       const SizedBox(height: 6),
                       Row(
                         children: [
                           Expanded(
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(3),
-                              child: LinearProgressIndicator(
-                                value: progress,
-                                minHeight: 5,
-                                backgroundColor: AppColors.surfaceVariant,
+                               child: LinearProgressIndicator(
+                                 value: progress,
+                                 minHeight: 5,
+                                 backgroundColor: context.appColors.surfaceVariant,
                                 valueColor:
                                     const AlwaysStoppedAnimation<Color>(
                                   AppColors.success,
@@ -923,21 +974,21 @@ class _UserTile extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            '${user.completedLessons}/${user.totalLessons}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                           Text(
+                             '${user.completedLessons}/${user.totalLessons}',
+                             style: TextStyle(
+                               fontSize: 12,
+                               color: context.appColors.textSecondary,
+                               fontWeight: FontWeight.w500,
+                             ),
+                           ),
                         ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 6),
-                Icon(Icons.chevron_right, size: 16, color: Colors.grey[400]),
+                 const SizedBox(width: 6),
+                 Icon(Icons.chevron_right, size: 16, color: context.appColors.textTertiary),
               ],
             ),
           ),
@@ -1129,13 +1180,13 @@ class _LessonProgressTile extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 2),
-              Text(
-                'Última vez: ${formatDate(progress.lastPlayed)}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[500],
-                ),
-              ),
+               Text(
+                 'Última vez: ${formatDate(progress.lastPlayed)}',
+                 style: TextStyle(
+                   fontSize: 14,
+                   color: context.appColors.textSecondary,
+                 ),
+               ),
             ],
           ),
           isThreeLine: true,

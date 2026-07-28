@@ -4,6 +4,7 @@ import '../../logic/mastery_evaluator.dart';
 import '../../models/lesson.dart';
 import '../../models/lesson_level.dart';
 import '../../utils/responsive.dart';
+import '../theme/app_colors_extension.dart';
 import 'lesson_grid_card.dart';
 
 class LevelSection extends StatelessWidget {
@@ -90,7 +91,7 @@ class LevelSection extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: Responsive.scale(context, 12, 14, 16)),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(Responsive.scale(context, 16, 18, 20)),
         border: Border.all(
           color: theme.accentColor.withAlpha(40),
@@ -258,7 +259,7 @@ class LevelSection extends StatelessWidget {
               Text(
                 'Completa el nivel anterior para desbloquear',
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+                  color: context.appColors.textTertiary,
                   fontSize: Responsive.scale(context, 11, 12, 13),
                   fontStyle: FontStyle.italic,
                 ),
@@ -277,7 +278,7 @@ class LevelSection extends StatelessWidget {
           child: Text(
             'No hay lecciones disponibles',
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+              color: context.appColors.textTertiary,
               fontSize: Responsive.scale(context, 11, 12, 13),
               fontStyle: FontStyle.italic,
             ),

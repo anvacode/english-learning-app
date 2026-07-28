@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/shop_item.dart';
 import '../../services/shop_service.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/avatar_widget.dart';
@@ -82,11 +83,11 @@ class _AvatarSelectionScreenState extends State<AvatarSelectionScreen> {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Avatares básicos',
-                        style: TextStyle(
-                          fontSize: sectionTitleSize,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey,
-                        ),
+                         style: TextStyle(
+                           fontSize: sectionTitleSize,
+                           fontWeight: FontWeight.w600,
+                           color: context.appColors.textSecondary,
+                         ),
                       ),
                     ),
                     SizedBox(height: Responsive.scale(context, 10, 12, 12)),
@@ -187,18 +188,18 @@ class _AvatarSelectionScreenState extends State<AvatarSelectionScreen> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primaryContainer
-              : isShopAvatar
-                  ? Colors.amber[50]
-                  : Colors.grey[100],
-          borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : isShopAvatar
-                    ? Colors.amber[300]!
-                    : Colors.grey[300]!,
+           color: isSelected
+               ? Theme.of(context).colorScheme.primaryContainer
+               : isShopAvatar
+                   ? Colors.amber[50]
+                   : context.appColors.surfaceVariant,
+           borderRadius: BorderRadius.circular(borderRadius),
+           border: Border.all(
+             color: isSelected
+                 ? Theme.of(context).colorScheme.primary
+                 : isShopAvatar
+                     ? Colors.amber[300]!
+                     : context.appColors.border,
             width: borderWidth,
           ),
           boxShadow: isSelected

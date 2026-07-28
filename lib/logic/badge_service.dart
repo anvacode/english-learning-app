@@ -1,6 +1,7 @@
 import 'package:english_ai_app/logic/lesson_completion_service.dart';
 import 'package:english_ai_app/models/badge.dart';
 import 'package:english_ai_app/models/lesson.dart';
+import 'package:english_ai_app/services/sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Badge definitions for each lesson.
@@ -102,6 +103,10 @@ class BadgeService {
     // Award the badge (first time mastery achieved)
     await prefs.setBool(awardedKey, true);
     invalidateCache();
+
+    // Disparar sincronización con la nube
+    SyncService().syncUserDataDebounced();
+
     return true; // Just awarded
   }
 

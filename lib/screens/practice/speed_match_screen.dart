@@ -10,6 +10,7 @@ import '../../logic/star_service.dart';
 import '../../models/activity_result.dart';
 import '../../models/lesson_item.dart';
 import '../../services/audio_service.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../theme/text_styles.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/animated_progress_bar.dart';
@@ -336,7 +337,7 @@ class _SpeedMatchScreenState extends State<SpeedMatchScreen> {
             style: TextStyle(
               fontSize: Responsive.scale(context, 16, 18, 20),
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: context.appColors.textPrimary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -380,7 +381,7 @@ class _SpeedMatchScreenState extends State<SpeedMatchScreen> {
                 style: TextStyle(
                   fontSize: Responsive.scale(context, 18, 20, 22),
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: context.appColors.textPrimary,
                 ),
               ),
               Container(
@@ -457,11 +458,11 @@ class _SpeedMatchScreenState extends State<SpeedMatchScreen> {
                 ? Colors.green
                 : isSelected
                     ? Colors.orange
-                    : Colors.grey[300]!,
+                    : context.appColors.border,
             width: isSelected || isMatched ? 3 : 2,
           ),
           borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
-          color: isMatched ? Colors.green[100] : Colors.white,
+          color: isMatched ? Colors.green[100] : context.appColors.cardBackground,
         ),
         child: isMatched
             ? Center(
@@ -507,14 +508,14 @@ class _SpeedMatchScreenState extends State<SpeedMatchScreen> {
                   ? Colors.green[100]
                   : isSelected
                       ? Colors.orange
-                      : Colors.grey[200],
+                      : context.appColors.surfaceVariant,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: isMatched
                     ? Colors.green
                     : isSelected
                         ? Colors.orange
-                        : Colors.grey[400]!,
+                        : context.appColors.border,
                 width: 2,
               ),
             ),
@@ -527,7 +528,7 @@ class _SpeedMatchScreenState extends State<SpeedMatchScreen> {
                     ? Colors.white
                     : isMatched
                         ? Colors.green[900]
-                        : Colors.black87,
+                        : context.appColors.textPrimary,
                 decoration: isMatched
                     ? TextDecoration.lineThrough
                     : TextDecoration.none,

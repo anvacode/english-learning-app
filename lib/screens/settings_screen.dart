@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../logic/theme_provider.dart';
 import '../screens/lesson_history_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/purchased_items_screen.dart';
 import '../services/audio_service.dart';
+import '../theme/app_colors_extension.dart';
 import '../utils/responsive.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/responsive_container.dart';
@@ -105,6 +108,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         _buildAccountSection(context),
         const SizedBox(height: 32),
+        _buildAppearanceSection(context),
+        const SizedBox(height: 32),
         _buildAudioSection(context),
         const SizedBox(height: 32),
         _buildPersonalizationSection(context),
@@ -127,6 +132,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildAccountSection(context),
+              const SizedBox(height: 32),
+              _buildAppearanceSection(context),
               const SizedBox(height: 32),
               _buildPersonalizationSection(context),
               const SizedBox(height: 32),
@@ -180,6 +187,105 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             );
           },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAppearanceSection(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+
+    return _SettingsSection(
+      title: 'Apariencia',
+      children: [
+        Padding(
+          padding: EdgeInsets.all(Responsive.scale(context, 14, 16, 18)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(
+                      Responsive.scale(context, 8, 9, 10),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Icons.palette_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: Responsive.scale(context, 20, 22, 24),
+                    ),
+                  ),
+                  SizedBox(width: Responsive.scale(context, 12, 14, 16)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Tema',
+                          style: TextStyle(
+                            fontSize: Responsive.scale(context, 15, 16, 17),
+                            fontWeight: FontWeight.w600,
+                            color: context.appColors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(
+                          height: Responsive.scale(context, 2, 3, 4),
+                        ),
+                        Text(
+                          'Elige cómo se ve la aplicación',
+                          style: TextStyle(
+                            fontSize: Responsive.scale(context, 13, 14, 15),
+                            color: context.appColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: Responsive.scale(context, 14, 16, 18)),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: context.appColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: context.appColors.border),
+                ),
+                child: Row(
+                  children: [
+                    _ThemeOption(
+                      mode: ThemeMode.light,
+                      icon: Icons.light_mode_rounded,
+                      label: 'Claro',
+                      selected: themeProvider.mode == ThemeMode.light,
+                      onTap: () => themeProvider.setMode(ThemeMode.light),
+                    ),
+                    _ThemeOption(
+                      mode: ThemeMode.dark,
+                      icon: Icons.dark_mode_rounded,
+                      label: 'Oscuro',
+                      selected: themeProvider.mode == ThemeMode.dark,
+                      onTap: () => themeProvider.setMode(ThemeMode.dark),
+                    ),
+                    _ThemeOption(
+                      mode: ThemeMode.system,
+                      icon: Icons.settings_suggest_rounded,
+                      label: 'Sistema',
+                      selected: themeProvider.mode == ThemeMode.system,
+                      onTap: () => themeProvider.setMode(ThemeMode.system),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -266,7 +372,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Colors.grey.shade300,
+            color: context.appColors.border,
             width: 0.5,
           ),
         ),
@@ -288,7 +394,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: TextStyle(
                     fontSize: Responsive.scale(context, 15, 16, 17),
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey[800],
+                    color: context.appColors.textPrimary,
                   ),
                 ),
               ),
@@ -426,10 +532,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               context: context,
               applicationName: 'English Learning',
               applicationVersion: '2.0.0',
-              applicationIcon: const Icon(
+              applicationIcon: Icon(
                 Icons.school,
                 size: 48,
-                color: Colors.deepPurple,
+                color: Theme.of(context).colorScheme.primary,
               ),
               children: const [
                 Text('Aplicación de aprendizaje de inglés para niños.'),
@@ -454,7 +560,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onPressed: () => _showResetConfirmation(context),
         icon: const Icon(Icons.refresh),
         label: const Text('Restablecer datos'),
-        style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Theme.of(context).colorScheme.error,
+        ),
       ),
     );
   }
@@ -494,6 +602,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.clear();
     await _loadAudioSettings();
     _loadNotificationSettings();
+    if (mounted) {
+      await context.read<ThemeProvider>().reload();
+    }
   }
 }
 
@@ -526,7 +637,7 @@ class _SettingsSection extends StatelessWidget {
         ),
         Card(
           elevation: 2,
-          shadowColor: Colors.black.withValues(alpha: 0.1),
+          shadowColor: context.appColors.shadow,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Responsive.scale(context, 12, 14, 16)),
           ),
@@ -536,6 +647,84 @@ class _SettingsSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Opción seleccionable del selector de tema (claro / oscuro / sistema).
+class _ThemeOption extends StatelessWidget {
+  final ThemeMode mode;
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ThemeOption({
+    required this.mode,
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final fontSize = Responsive.scale(context, 13, 14, 15);
+    final iconSize = Responsive.scale(context, 18, 19, 20);
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.symmetric(
+            vertical: Responsive.scale(context, 10, 11, 12),
+          ),
+          decoration: BoxDecoration(
+            gradient: selected ? context.appColors.primaryGradient : null,
+            color: selected ? null : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: scheme.primary.withValues(alpha: 0.35),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ]
+                : null,
+          ),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: iconSize,
+                  color: selected
+                      ? Colors.white
+                      : context.appColors.textSecondary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    color: selected
+                        ? Colors.white
+                        : context.appColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -565,7 +754,7 @@ class _SettingsTile extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: Colors.grey.shade300,
+              color: context.appColors.border,
               width: 0.5,
             ),
           ),
@@ -594,7 +783,7 @@ class _SettingsTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: Responsive.scale(context, 15, 16, 17),
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[900],
+                      color: context.appColors.textPrimary,
                     ),
                   ),
                   SizedBox(height: Responsive.scale(context, 2, 3, 4)),
@@ -602,7 +791,7 @@ class _SettingsTile extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: Responsive.scale(context, 13, 14, 15),
-                      color: Colors.grey[600],
+                      color: context.appColors.textSecondary,
                     ),
                   ),
                 ],
@@ -615,7 +804,7 @@ class _SettingsTile extends StatelessWidget {
               SizedBox(width: Responsive.scale(context, 8, 10, 12)),
               Icon(
                 Icons.chevron_right,
-                color: Colors.grey[400],
+                color: context.appColors.textTertiary,
                 size: Responsive.scale(context, 20, 22, 24),
               ),
             ],

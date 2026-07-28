@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/tutorial_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/app_scaffold.dart';
 import '../home_screen.dart';
@@ -137,8 +138,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.textSecondary,
+                     style: TextButton.styleFrom(
+                       foregroundColor: context.appColors.textSecondary,
                       padding: EdgeInsets.symmetric(
                         horizontal: Responsive.scale(context, 10, 12, 14),
                         vertical: Responsive.scale(context, 6, 8, 10),
@@ -160,8 +161,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
                     '${_currentPage + 1} / ${_cards.length}',
                     style: TextStyle(
                       fontSize: Responsive.scale(context, 15, 16, 17),
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textTertiary,
+                       fontWeight: FontWeight.bold,
+                       color: context.appColors.textTertiary,
                     ),
                   ),
                 ],
@@ -210,7 +211,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                               width: isActive ? 24 : 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: isActive ? AppColors.primary : AppColors.border,
+                                 color: isActive ? AppColors.primary : context.appColors.border,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             );

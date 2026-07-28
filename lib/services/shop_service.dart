@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../logic/star_service.dart';
 import '../logic/user_profile_service.dart';
 import '../models/shop_item.dart';
+import '../services/sync_service.dart';
 
 /// Servicio para manejar la tienda de estrellas.
 /// 
@@ -109,6 +110,9 @@ class ShopService {
 
     // 3. Activar automáticamente según el tipo de ítem
     await _activateItemOnPurchase(item);
+
+    // 4. Disparar sincronización con la nube
+    SyncService().syncUserDataDebounced();
   }
   
   /// Activa un ítem automáticamente después de comprarlo.

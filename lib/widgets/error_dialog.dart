@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors_extension.dart';
 import '../utils/responsive.dart';
 
 /// Diálogo de error moderno y atractivo.
@@ -102,7 +103,7 @@ class ErrorDialog extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(Responsive.scale(context, 12, 16, 20)),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.appColors.cardBackground,
                 borderRadius: BorderRadius.circular(Responsive.scale(context, 10, 12, 14)),
                 border: Border.all(
                   color: Colors.red[200]!,
@@ -113,7 +114,7 @@ class ErrorDialog extends StatelessWidget {
                 message,
                 style: TextStyle(
                   fontSize: messageSize,
-                  color: Colors.grey[800],
+                  color: context.appColors.textPrimary,
                   height: 1.4,
                 ),
                 textAlign: TextAlign.center,
@@ -128,7 +129,7 @@ class ErrorDialog extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.grey[400]!, width: 2),
+                      side: BorderSide(color: context.appColors.border, width: 2),
                       padding: EdgeInsets.symmetric(vertical: Responsive.scale(context, 12, 14, 16)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(Responsive.scale(context, 10, 12, 14)),
@@ -139,7 +140,7 @@ class ErrorDialog extends StatelessWidget {
                       style: TextStyle(
                         fontSize: Responsive.scale(context, 14, 16, 18),
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[700],
+                        color: context.appColors.textPrimary,
                       ),
                     ),
                   ),

@@ -5,6 +5,7 @@ import '../logic/activity_result_service.dart';
 import '../models/activity_result.dart';
 import '../models/lesson.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_colors_extension.dart';
 import '../utils/responsive.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/responsive_container.dart';
@@ -77,8 +78,8 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.grey.withAlpha(20),
-                  Colors.grey.withAlpha(5),
+                  context.appColors.surfaceVariant.withAlpha(20),
+                  context.appColors.surfaceVariant.withAlpha(5),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -88,7 +89,7 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
             child: Icon(
               Icons.history_rounded,
               size: Responsive.scale(context, 60, 70, 80),
-              color: Colors.grey[400],
+              color: context.appColors.textTertiary,
             ),
           ),
           SizedBox(height: Responsive.scale(context, 16, 20, 24)),
@@ -96,7 +97,7 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
             'Sin historial todavía',
             style: TextStyle(
               fontSize: Responsive.scale(context, 18, 20, 22),
-              color: Colors.grey[600],
+              color: context.appColors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -105,7 +106,7 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
             'Completa lecciones para ver tu progreso aquí',
             style: TextStyle(
               fontSize: Responsive.scale(context, 13, 14, 15),
-              color: Colors.grey[500],
+              color: context.appColors.textSecondary,
             ),
           ),
         ],
@@ -160,7 +161,7 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withAlpha(8),
+                color: context.appColors.shadow,
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

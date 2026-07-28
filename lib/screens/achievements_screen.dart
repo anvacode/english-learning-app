@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/lessons_data.dart';
 import '../logic/badge_service.dart';
 import '../models/badge.dart' as achievement;
+import '../theme/app_colors_extension.dart';
 import '../theme/text_styles.dart';
 import '../utils/responsive.dart';
 import '../widgets/app_scaffold.dart';
@@ -66,7 +67,7 @@ class AchievementsScreen extends StatelessWidget {
                       context,
                       emoji: '🎯',
                       message: 'Domina lecciones para desbloquear badges',
-                      color: Colors.grey[100]!,
+                      color: context.appColors.surfaceVariant,
                     )
                   else
                     _buildBadgeGrid(context, unlockedBadges, true),
@@ -126,7 +127,7 @@ class AchievementsScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: Responsive.scale(context, 14, 16, 18),
               fontWeight: FontWeight.w600,
-              color: textColor ?? Colors.grey[700],
+              color: textColor ?? context.appColors.textPrimary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -204,10 +205,10 @@ class _BadgeCard extends StatelessWidget {
                 ],
               )
             : null,
-        color: isUnlocked ? null : Colors.grey.shade200,
+        color: isUnlocked ? null : context.appColors.surfaceVariant,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: isUnlocked ? Colors.amber.shade600 : Colors.grey.shade400,
+          color: isUnlocked ? Colors.amber.shade600 : context.appColors.border,
           width: isUnlocked ? 4 : 2,
         ),
         boxShadow: isUnlocked
@@ -221,7 +222,7 @@ class _BadgeCard extends StatelessWidget {
               ]
             : [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
+                  color: context.appColors.shadow,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -248,7 +249,7 @@ class _BadgeCard extends StatelessWidget {
             style: TextStyle(
               fontSize: Responsive.scale(context, 12, 16, 18),
               fontWeight: FontWeight.bold,
-              color: isUnlocked ? Colors.amber[900] : Colors.grey[800],
+              color: isUnlocked ? Colors.amber[900] : context.appColors.textPrimary,
             ),
             textAlign: TextAlign.center,
             maxLines: 2,
@@ -280,14 +281,14 @@ class _BadgeCard extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(Responsive.scale(context, 8, 10, 12)),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.8),
+                color: context.appColors.cardBackground.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 'Completa:\n$lessonName',
                 style: TextStyle(
                   fontSize: Responsive.scale(context, 10, 11, 12),
-                  color: Colors.grey[700],
+                  color: context.appColors.textPrimary,
                   fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,

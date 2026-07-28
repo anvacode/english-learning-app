@@ -6,6 +6,7 @@ import '../logic/activity_result_service.dart';
 import '../models/activity_result.dart';
 import '../models/matching_item.dart';
 import '../services/audio_service.dart';
+import '../theme/app_colors_extension.dart';
 import '../theme/text_styles.dart';
 import '../utils/responsive.dart';
 import '../widgets/lesson_image.dart';
@@ -224,7 +225,7 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
                           widget.progressOffset +
                           (_matchedIds.length / widget.items.length) *
                               widget.progressScale,
-                      backgroundColor: Colors.grey[300],
+                      backgroundColor: context.appColors.surfaceVariant,
                       color: Colors.deepPurple,
                       minHeight: Responsive.scale(context, 6, 8, 10),
                     ),
@@ -237,7 +238,7 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
                           style: TextStyle(
                             fontSize: Responsive.scale(context, 13, 14, 15),
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey[700],
+                            color: context.appColors.textPrimary,
                           ),
                         ),
                         if (_matchedIds.length == widget.items.length)
@@ -328,7 +329,7 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
                             : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepPurple,
-                          disabledBackgroundColor: Colors.grey[300],
+                          disabledBackgroundColor: context.appColors.surfaceVariant,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
                           ),
@@ -367,7 +368,7 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
                     style: TextStyle(
                       fontSize: Responsive.scale(context, 13, 14, 15),
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
+                      color: context.appColors.textSecondary,
                     ),
                   ),
                 ),
@@ -401,7 +402,7 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
                     style: TextStyle(
                       fontSize: Responsive.scale(context, 13, 14, 15),
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
+                      color: context.appColors.textSecondary,
                     ),
                   ),
                 ),
@@ -443,7 +444,7 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
                     style: TextStyle(
                       fontSize: Responsive.scale(context, 14, 15, 16),
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
+                      color: context.appColors.textSecondary,
                     ),
                   ),
                 ),
@@ -471,7 +472,7 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
                     style: TextStyle(
                       fontSize: Responsive.scale(context, 14, 15, 16),
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
+                      color: context.appColors.textSecondary,
                     ),
                   ),
                 ),
@@ -512,11 +513,11 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
               height: Responsive.scale(context, 85, 90, 95),
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: isSelected ? Colors.deepPurple : Colors.grey[300]!,
+                  color: isSelected ? Colors.deepPurple : context.appColors.border,
                   width: isSelected ? 3 : 1.5,
                 ),
                 borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
-                color: isMatched ? Colors.green[50] : Colors.white,
+                color: isMatched ? Colors.green[50] : context.appColors.cardBackground,
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
@@ -527,7 +528,7 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
                       ]
                     : [
                         BoxShadow(
-                          color: Colors.black.withAlpha(20),
+                          color: context.appColors.shadow,
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -616,14 +617,14 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
           child: ElevatedButton(
             onPressed: isUsedInMatch ? null : () => _selectWord(word),
             style: ElevatedButton.styleFrom(
-              backgroundColor: isSelected ? Colors.deepPurple : Colors.white,
+              backgroundColor: isSelected ? Colors.deepPurple : context.appColors.cardBackground,
               disabledBackgroundColor: Colors.green[100],
               elevation: isSelected ? 4 : 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
                 side: isSelected
                     ? BorderSide(color: Colors.deepPurple.shade700, width: 2)
-                    : BorderSide(color: Colors.grey[300]!, width: 1.5),
+                    : BorderSide(color: context.appColors.border, width: 1.5),
               ),
               padding: EdgeInsets.symmetric(
                 horizontal: Responsive.scale(context, 12, 16, 20),
@@ -644,7 +645,7 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
                     style: TextStyle(
                       fontSize: Responsive.scale(context, 14, 15, 16),
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? Colors.white : Colors.black87,
+                      color: isSelected ? Colors.white : context.appColors.textPrimary,
                     ),
                   ),
                 ),

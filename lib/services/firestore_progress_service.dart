@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_profile.dart';
 import '../services/firebase_service.dart';
@@ -16,7 +17,7 @@ class FirestoreProgressService {
 
   final FirebaseService _firebaseService = FirebaseService();
 
-  /// Registra una sesión de usuario (contador + timestamp).
+  /// Registra una sesión de usuario (contador + timestamp + racha).
   /// Se llama UNA vez al entrar al HomeScreen.
   Future<void> registerSession() async {
     try {
@@ -31,14 +32,21 @@ class FirestoreProgressService {
         return;
       }
 
-      await _firebaseService.firestore.collection('users').doc(user.uid).update({
+      // Leer racha de login local para sincronizarla
+      final prefs = await SharedPreferences.getInstance();
+      final loginStreak = prefs.getInt('login_streak') ?? 0;
+      final lastLoginDate = prefs.getString('last_login_date');
+
+      await _firebaseService.firestore.collection('users').doc(user.uid).set({
         'profile.totalSessions': FieldValue.increment(1),
         'profile.lastActive': FieldValue.serverTimestamp(),
         'profile.sessionsByDay.${formatDayKey(DateTime.now())}':
             FieldValue.increment(1),
-      });
+        'profile.loginStreak': loginStreak,
+        'profile.lastLoginDate': lastLoginDate,
+      }, SetOptions(merge: true));
 
-      debugPrint('✅ Sesión registrada para ${user.email}');
+      debugPrint('✅ Sesión registrada para ${user.email} (racha: $loginStreak)');
     } catch (e) {
       debugPrint('❌ Error al registrar sesión: $e');
     }
@@ -99,7 +107,7 @@ class FirestoreProgressService {
         updateData['progress.$lessonId.bestAccuracy'] = newAccuracy;
       }
 
-      await docRef.update(updateData);
+      await docRef.set(updateData, SetOptions(merge: true));
 
       debugPrint(
         '✅ Progreso guardado: $lessonId | '
@@ -197,12 +205,22 @@ class FirestoreProgressService {
       final nickname = profileData?['nickname'] as String?;
       final totalSessions =
           (profileData?['totalSessions'] as num?)?.toInt() ?? 0;
+      final loginStreak =
+          (profileData?['loginStreak'] as num?)?.toInt() ?? 0;
 
       DateTime? lastActive;
       if (profileData?['lastActive'] != null) {
         final ts = profileData!['lastActive'];
         if (ts is Timestamp) {
           lastActive = ts.toDate();
+        }
+      }
+
+      DateTime? lastLoginDate;
+      if (profileData?['lastLoginDate'] != null) {
+        final str = profileData!['lastLoginDate'] as String?;
+        if (str != null) {
+          lastLoginDate = DateTime.tryParse(str);
         }
       }
 
@@ -222,6 +240,8 @@ class FirestoreProgressService {
         progress: lessonProgressMap,
         email: email,
         nickname: nickname,
+        loginStreak: loginStreak,
+        lastLoginDate: lastLoginDate,
       );
     } catch (e) {
       debugPrint('❌ Error al obtener métricas de $uid: $e');
@@ -269,6 +289,9 @@ class FirestoreProgressService {
           }
         }
 
+        final loginStreak =
+            (profileData?['loginStreak'] as num?)?.toInt() ?? 0;
+
         final progressData = data['progress'] as Map<String, dynamic>?;
         int totalLessons = 0;
         int completedLessons = 0;
@@ -294,6 +317,7 @@ class FirestoreProgressService {
             lastActive: lastActive,
             totalLessons: totalLessons,
             completedLessons: completedLessons,
+            loginStreak: loginStreak,
           ),
         );
       }
@@ -394,22 +418,24 @@ class FirestoreProgressService {
     final users = await getAllUsers();
     final buffer = StringBuffer();
 
-    buffer.writeln('Email;Nickname;Fecha de Registro;Ultima Actividad;Dias de Uso;Total de Sesiones;Lecciones Completadas;Total de Lecciones;Progreso (%)');
+    buffer.writeln('Email;Nickname;Fecha de Registro;Ultima Actividad;Racha de Login;Dias de Uso;Total de Sesiones;Lecciones Completadas;Total de Lecciones;Progreso (%)');
 
     for (final user in users) {
       final email = user.email.isNotEmpty ? user.email : 'No disponible';
-      final nickname = (user.nickname != null && user.nickname!.isNotEmpty) 
-          ? user.nickname! 
+      final nickname = (user.nickname != null && user.nickname!.isNotEmpty)
+          ? user.nickname!
           : 'Sin nickname';
-      
+
       final createdAt = user.createdAt != null
           ? '${user.createdAt!.day.toString().padLeft(2, '0')}/${user.createdAt!.month.toString().padLeft(2, '0')}/${user.createdAt!.year}'
           : 'Sin registro';
-      
+
       final lastActive = user.lastActive != null
           ? '${user.lastActive!.day.toString().padLeft(2, '0')}/${user.lastActive!.month.toString().padLeft(2, '0')}/${user.lastActive!.year} ${user.lastActive!.hour.toString().padLeft(2, '0')}:${user.lastActive!.minute.toString().padLeft(2, '0')}'
           : 'Sin actividad';
-      
+
+      final racha = '${user.loginStreak} días';
+
       final diasDeUso = user.createdAt != null
           ? DateTime.now().difference(user.createdAt!).inDays.toString()
           : '0';
@@ -419,7 +445,7 @@ class FirestoreProgressService {
           : '0.0';
 
       buffer.writeln(
-        '$email;$nickname;$createdAt;$lastActive;$diasDeUso;${user.totalSessions};${user.completedLessons};${user.totalLessons};$progreso%',
+        '$email;$nickname;$createdAt;$lastActive;$racha;$diasDeUso;${user.totalSessions};${user.completedLessons};${user.totalLessons};$progreso%',
       );
     }
 
@@ -434,6 +460,8 @@ class UserMetrics {
   final Map<String, LessonProgress> progress;
   final String? email;
   final String? nickname;
+  final int loginStreak;
+  final DateTime? lastLoginDate;
 
   const UserMetrics({
     required this.totalSessions,
@@ -441,6 +469,8 @@ class UserMetrics {
     required this.progress,
     this.email,
     this.nickname,
+    this.loginStreak = 0,
+    this.lastLoginDate,
   });
 }
 
@@ -454,6 +484,7 @@ class UserSummary {
   final DateTime? lastActive;
   final int totalLessons;
   final int completedLessons;
+  final int loginStreak;
 
   const UserSummary({
     required this.uid,
@@ -464,6 +495,7 @@ class UserSummary {
     this.lastActive,
     required this.totalLessons,
     required this.completedLessons,
+    this.loginStreak = 0,
   });
 }
 

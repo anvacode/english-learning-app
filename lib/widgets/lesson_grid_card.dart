@@ -4,6 +4,7 @@ import '../../data/lesson_themes.dart';
 import '../../logic/mastery_evaluator.dart';
 import '../../models/lesson.dart';
 import '../../utils/responsive.dart';
+import '../theme/app_colors_extension.dart';
 
 class LessonGridCard extends StatefulWidget {
   final Lesson lesson;
@@ -56,7 +57,10 @@ class _LessonGridCardState extends State<LessonGridCard> {
 
         final gradient = widget.isLocked
             ? LinearGradient(
-                colors: [Colors.grey[400]!, Colors.grey[300]!],
+                colors: [
+                  context.appColors.border,
+                  context.appColors.surfaceVariant,
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               )
@@ -69,7 +73,7 @@ class _LessonGridCardState extends State<LessonGridCard> {
             boxShadow: [
               BoxShadow(
                 color: widget.isLocked
-                    ? Colors.grey.withAlpha(40)
+                    ? context.appColors.shadow
                     : theme.gradientColors.first.withAlpha(_isHovered ? 70 : 45),
                 blurRadius: _isHovered ? 16 : 10,
                 offset: Offset(0, _isHovered ? 6 : 3),

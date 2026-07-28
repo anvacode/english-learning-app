@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/audio_service.dart';
+import '../theme/app_colors_extension.dart';
 
 /// Widget que muestra una traducción en un popup temporal.
 /// 
@@ -184,7 +185,7 @@ class _TranslationOverlayState extends State<_TranslationOverlay>
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withAlpha(76),
+                        color: context.appColors.shadow,
                         blurRadius: 20,
                         spreadRadius: 2,
                         offset: const Offset(0, 4),

@@ -13,6 +13,7 @@ import '../../logic/star_service.dart';
 import '../../models/lesson.dart';
 import '../../models/lesson_exercise.dart';
 import '../../models/practice_activity.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../theme/text_styles.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/adaptive_practice_card.dart';
@@ -1087,12 +1088,12 @@ class _PracticeHubScreenState extends State<PracticeHubScreen>
                     ],
                   )
                 : null,
-            color: isSelected ? null : Colors.grey[100],
+            color: isSelected ? null : context.appColors.surfaceVariant,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isSelected
                   ? Colors.transparent
-                  : Colors.grey.withAlpha(40),
+                  : context.appColors.border,
             ),
             boxShadow: isSelected
                 ? [
@@ -1110,7 +1111,7 @@ class _PracticeHubScreenState extends State<PracticeHubScreen>
               Icon(
                 icon,
                 size: Responsive.scale(context, 14, 16, 18),
-                color: isSelected ? Colors.white : Colors.grey[600],
+                color: isSelected ? Colors.white : context.appColors.textSecondary,
               ),
               const SizedBox(width: 6),
               Text(
@@ -1118,7 +1119,7 @@ class _PracticeHubScreenState extends State<PracticeHubScreen>
                 style: TextStyle(
                   fontSize: Responsive.scale(context, 11, 12, 13),
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : Colors.grey[700],
+                  color: isSelected ? Colors.white : context.appColors.textPrimary,
                 ),
               ),
             ],
@@ -1138,20 +1139,20 @@ class _PracticeHubScreenState extends State<PracticeHubScreen>
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: context.appColors.surfaceVariant,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.search_off_rounded,
                 size: 48,
-                color: Colors.grey[400],
+                color: context.appColors.textTertiary,
               ),
             ),
             const SizedBox(height: 16),
             Text(
               'No hay actividades disponibles',
               style: context.cardTitle.copyWith(
-                color: Colors.grey[600],
+                color: context.appColors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),

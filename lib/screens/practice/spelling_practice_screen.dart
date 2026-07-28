@@ -8,6 +8,7 @@ import '../../models/lesson.dart';
 import '../../models/lesson_item.dart';
 import '../../models/practice_activity.dart';
 import '../../services/audio_service.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../theme/text_styles.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/animated_progress_bar.dart';
@@ -289,7 +290,7 @@ class _SpellingPracticeScreenState extends State<SpellingPracticeScreen>
             style: TextStyle(
               fontSize: Responsive.scale(context, 14, 16, 18),
               fontWeight: FontWeight.w600,
-              color: Colors.grey,
+              color: context.appColors.textSecondary,
             ),
           ),
           SizedBox(height: Responsive.scale(context, 12, 16, 20)),
@@ -344,7 +345,7 @@ class _SpellingPracticeScreenState extends State<SpellingPracticeScreen>
                         style: TextStyle(
                           fontSize: Responsive.scale(context, 15, 16, 18),
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey,
+                          color: context.appColors.textSecondary,
                         ),
                       ),
                       SizedBox(height: Responsive.scale(context, 10, 12, 16)),
@@ -374,7 +375,7 @@ class _SpellingPracticeScreenState extends State<SpellingPracticeScreen>
                 borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withAlpha(26),
+                    color: context.appColors.shadow,
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -383,7 +384,7 @@ class _SpellingPracticeScreenState extends State<SpellingPracticeScreen>
             )
           : LessonImage(
               imagePath: currentItem.stimulusImageAsset,
-              fallbackColor: Colors.grey[300],
+              fallbackColor: context.appColors.surfaceVariant,
               width: Responsive.scale(context, 160, 180, 200),
               height: Responsive.scale(context, 160, 180, 200),
             ),
@@ -397,12 +398,12 @@ class _SpellingPracticeScreenState extends State<SpellingPracticeScreen>
         horizontal: Responsive.scale(context, 12, 16, 20),
       ),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: context.appColors.surfaceVariant,
         borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
         border: Border.all(
           color: _showFeedback
               ? (_isCorrect ? Colors.green : Colors.red)
-              : Colors.grey[400]!,
+              : context.appColors.border,
           width: 3,
         ),
       ),
@@ -417,14 +418,14 @@ class _SpellingPracticeScreenState extends State<SpellingPracticeScreen>
               height: Responsive.scale(context, 48, 52, 60),
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: Colors.grey[400]!,
+                  color: context.appColors.border,
                   width: 2,
                 ),
                 borderRadius: BorderRadius.circular(Responsive.scale(context, 10, 12, 14)),
               ),
               child: Icon(
                 Icons.touch_app,
-                color: Colors.grey[400],
+                color: context.appColors.textTertiary,
                 size: Responsive.scale(context, 22, 26, 32),
               ),
             )

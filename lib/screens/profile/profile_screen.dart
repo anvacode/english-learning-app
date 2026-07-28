@@ -8,6 +8,7 @@ import '../../logic/star_service.dart';
 import '../../logic/user_profile_service.dart';
 import '../../models/badge.dart' as achievement;
 import '../../models/user_profile.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../theme/text_styles.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/app_scaffold.dart';
@@ -230,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Icon(
                     Icons.edit,
                     size: Responsive.scale(context, 18, 20, 20),
-                    color: Colors.grey[600],
+                    color: context.appColors.textSecondary,
                   ),
                 ],
               ),
@@ -339,13 +340,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Total de estrellas:',
-                              style: TextStyle(
-                                fontSize: Responsive.scale(context, 16, 17, 18),
-                                color: Colors.grey,
-                              ),
-                            ),
+                             Text(
+                               'Total de estrellas:',
+                               style: TextStyle(
+                                 fontSize: Responsive.scale(context, 16, 17, 18),
+                                 color: context.appColors.textSecondary,
+                               ),
+                             ),
                             Text(
                               '$totalStars ⭐',
                               style: TextStyle(
@@ -360,13 +361,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Ganadas hoy:',
-                              style: TextStyle(
-                                fontSize: Responsive.scale(context, 16, 17, 18),
-                                color: Colors.grey,
-                              ),
-                            ),
+                             Text(
+                               'Ganadas hoy:',
+                               style: TextStyle(
+                                 fontSize: Responsive.scale(context, 16, 17, 18),
+                                 color: context.appColors.textSecondary,
+                               ),
+                             ),
                             Text(
                               '$todayStars ⭐',
                               style: TextStyle(
@@ -417,9 +418,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 return Column(
                   children: [
-                    LinearProgressIndicator(
-                      value: progress,
-                      backgroundColor: Colors.grey[300],
+                     LinearProgressIndicator(
+                       value: progress,
+                       backgroundColor: context.appColors.surfaceVariant,
                       color: Colors.deepPurple,
                       minHeight: Responsive.scale(context, 10, 12, 14),
                       borderRadius: BorderRadius.circular(Responsive.scale(context, 4, 6, 8)),
@@ -480,16 +481,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (unlockedBadges.isEmpty) {
                   return Container(
                     padding: EdgeInsets.all(Responsive.scale(context, 12, 16, 20)),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
-                    ),
-                    child: Text(
-                      'Completa lecciones para desbloquear badges',
-                      style: TextStyle(
-                        fontSize: Responsive.scale(context, 14, 16, 18),
-                        color: Colors.grey,
-                      ),
+                     decoration: BoxDecoration(
+                       color: context.appColors.surfaceVariant,
+                       borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
+                     ),
+                     child: Text(
+                       'Completa lecciones para desbloquear badges',
+                       style: TextStyle(
+                         fontSize: Responsive.scale(context, 14, 16, 18),
+                         color: context.appColors.textSecondary,
+                       ),
                       textAlign: TextAlign.center,
                     ),
                   );

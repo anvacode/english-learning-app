@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors_extension.dart';
+
 /// Diálogo que muestra las recompensas del login diario.
 /// 
 /// Muestra:
@@ -103,17 +105,20 @@ class _DailyLoginRewardDialogState extends State<DailyLoginRewardDialog>
             maxWidth: MediaQuery.of(context).size.width * 0.85,
           ),
           padding: const EdgeInsets.all(24.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.amber[50]!,
-                Colors.orange[50]!,
-              ],
-            ),
-          ),
+           decoration: BoxDecoration(
+             borderRadius: BorderRadius.circular(24),
+             gradient: context.isDarkMode
+                 ? null
+                 : LinearGradient(
+                     begin: Alignment.topLeft,
+                     end: Alignment.bottomRight,
+                     colors: [
+                       Colors.amber[50]!,
+                       Colors.orange[50]!,
+                     ],
+                   ),
+             color: context.isDarkMode ? context.appColors.cardBackground : null,
+           ),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -140,11 +145,11 @@ class _DailyLoginRewardDialogState extends State<DailyLoginRewardDialog>
                 // Mensaje de login diario
                 Text(
                   'Has iniciado sesión ${widget.loginStreak} ${widget.loginStreak == 1 ? 'día' : 'días'} seguidos',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[700],
-                  ),
+                   style: TextStyle(
+                     fontSize: 16,
+                     fontWeight: FontWeight.w600,
+                     color: context.appColors.textPrimary,
+                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
@@ -192,13 +197,13 @@ class _DailyLoginRewardDialogState extends State<DailyLoginRewardDialog>
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              const Text(
-                                'Estrellas ganadas',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                               Text(
+                                 'Estrellas ganadas',
+                                 style: TextStyle(
+                                   fontSize: 12,
+                                   color: context.appColors.textSecondary,
+                                 ),
+                               ),
                             ],
                           ),
                         ),
@@ -257,23 +262,23 @@ class _DailyLoginRewardDialogState extends State<DailyLoginRewardDialog>
                 const SizedBox(height: 24),
 
                 // Mensaje motivacional
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                 Container(
+                   padding: const EdgeInsets.all(12),
+                   decoration: BoxDecoration(
+                     color: context.appColors.surface,
+                     borderRadius: BorderRadius.circular(12),
+                   ),
                   child: Text(
                     widget.loginStreak >= 7
                         ? '¡Increíble! Sigue así 🎉'
                         : widget.loginStreak >= 3
                             ? '¡Vas muy bien! Continúa aprendiendo 💪'
                             : '¡Sigue aprendiendo cada día! 📚',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[800],
-                    ),
+                     style: TextStyle(
+                       fontSize: 14,
+                       fontWeight: FontWeight.w500,
+                       color: context.appColors.textPrimary,
+                     ),
                     textAlign: TextAlign.center,
                   ),
                 ),

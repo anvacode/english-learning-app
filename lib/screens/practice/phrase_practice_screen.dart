@@ -6,6 +6,7 @@ import '../../data/pronunciation_phrases_data.dart';
 import '../../services/audio_service.dart';
 import '../../services/speech_recognition_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../utils/responsive.dart';
 
 class PhrasePracticeScreen extends StatefulWidget {
@@ -156,10 +157,10 @@ class _PhrasePracticeScreenState extends State<PhrasePracticeScreen>
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               '¡Sigue practicando para mejorar tu inglés!',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: context.appColors.textSecondary),
             ),
           ],
         ),
@@ -318,11 +319,11 @@ class _PhrasePracticeScreenState extends State<PhrasePracticeScreen>
       width: double.infinity,
       padding: EdgeInsets.all(Responsive.scale(context, 20, 28, 32)),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(Responsive.scale(context, 20, 28, 32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(20),
+            color: context.appColors.shadow,
             blurRadius: 30,
             offset: const Offset(0, 15),
           ),
@@ -354,7 +355,7 @@ class _PhrasePracticeScreenState extends State<PhrasePracticeScreen>
           SizedBox(height: Responsive.scale(context, 16, 20, 24)),
           Text(
             'Di esta frase:',
-            style: TextStyle(color: Colors.grey[600], fontSize: Responsive.scale(context, 13, 14, 15)),
+            style: TextStyle(color: context.appColors.textSecondary, fontSize: Responsive.scale(context, 13, 14, 15)),
           ),
           SizedBox(height: Responsive.scale(context, 10, 12, 14)),
           Row(
@@ -366,7 +367,7 @@ class _PhrasePracticeScreenState extends State<PhrasePracticeScreen>
                   style: TextStyle(
                     fontSize: Responsive.scale(context, 22, 26, 30),
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF2D3748),
+                    color: context.appColors.textPrimary,
                   ),
                 ),
               ),
@@ -383,7 +384,7 @@ class _PhrasePracticeScreenState extends State<PhrasePracticeScreen>
             phrase.translation,
             style: TextStyle(
               fontSize: Responsive.scale(context, 16, 18, 20),
-              color: Colors.grey[600],
+              color: context.appColors.textSecondary,
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -433,7 +434,7 @@ class _PhrasePracticeScreenState extends State<PhrasePracticeScreen>
           SizedBox(height: Responsive.scale(context, 6, 8, 10)),
           Text(
             'Tú dijiste: "${result.recognizedText}"',
-            style: TextStyle(fontSize: Responsive.scale(context, 12, 13, 14), color: Colors.grey[600]),
+            style: TextStyle(fontSize: Responsive.scale(context, 12, 13, 14), color: context.appColors.textSecondary),
           ),
         ],
       ),

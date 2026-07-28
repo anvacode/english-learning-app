@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../logic/auth_provider.dart';
 import '../../services/diagnostic_service.dart';
+import '../../theme/app_colors_extension.dart';
 import '../../utils/responsive.dart';
 import '../../widgets/responsive_snack_bar.dart';
 import '../admin_dashboard_screen.dart';
@@ -164,15 +165,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFFF5F7FA), Color(0xFFE4E8EC)],
-              ),
-            ),
-          ),
+           Container(
+             decoration: BoxDecoration(
+               gradient: context.appColors.backgroundGradient,
+             ),
+           ),
           Positioned(
             top: -100,
             right: -100,
@@ -230,7 +227,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Align(
                   alignment: Alignment.topLeft,
                   child: IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.grey.shade800),
+                     icon: Icon(Icons.arrow_back, color: context.appColors.textPrimary),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
@@ -248,21 +245,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: BackdropFilter(
                             filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                             child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.25),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.4),
-                                  width: 1,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.08),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 8),
-                                  ),
-                                ],
-                              ),
+                               decoration: BoxDecoration(
+                                 color: context.appColors.cardBackground.withValues(alpha: 0.25),
+                                 borderRadius: BorderRadius.circular(20),
+                                 border: Border.all(
+                                   color: Colors.white.withValues(alpha: 0.4),
+                                   width: 1,
+                                 ),
+                                 boxShadow: [
+                                   BoxShadow(
+                                     color: context.appColors.shadow,
+                                     blurRadius: 20,
+                                     offset: const Offset(0, 8),
+                                   ),
+                                 ],
+                               ),
                               child: Padding(
                                 padding: EdgeInsets.all(Responsive.scale(context, 16, 20, 24)),
                                 child: Form(
@@ -272,35 +269,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     children: [
                                       Text(
                                         '¡Crea tu cuenta!',
-                                        style: TextStyle(
-                                          fontSize: Responsive.scale(context, 20, 22, 24),
-                                          fontWeight: FontWeight.bold,
-                                          color: const Color(0xFF2D3748),
-                                        ),
-                                      ),
-                                      SizedBox(height: Responsive.scale(context, 4, 5, 6)),
-                                      Text(
-                                        'Guarda tu progreso y accede desde cualquier dispositivo',
-                                        style: TextStyle(
-                                          fontSize: Responsive.scale(context, 12, 13, 14),
-                                          color: Colors.grey.shade700,
-                                        ),
+                                         style: TextStyle(
+                                           fontSize: Responsive.scale(context, 20, 22, 24),
+                                           fontWeight: FontWeight.bold,
+                                           color: context.appColors.textPrimary,
+                                         ),
+                                       ),
+                                       SizedBox(height: Responsive.scale(context, 4, 5, 6)),
+                                       Text(
+                                         'Guarda tu progreso y accede desde cualquier dispositivo',
+                                         style: TextStyle(
+                                           fontSize: Responsive.scale(context, 12, 13, 14),
+                                           color: context.appColors.textPrimary,
+                                         ),
                                         textAlign: TextAlign.center,
                                       ),
                                       SizedBox(height: Responsive.scale(context, 16, 18, 20)),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.6),
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: Colors.white.withValues(alpha: 0.5),
-                                          ),
-                                        ),
-                                        child: TextFormField(
-                                          controller: _emailController,
-                                          decoration: InputDecoration(
-                                            labelText: 'Email',
-                                            labelStyle: TextStyle(color: Colors.grey.shade700),
+                                       Container(
+                                         decoration: BoxDecoration(
+                                           color: context.appColors.cardBackground.withValues(alpha: 0.6),
+                                           borderRadius: BorderRadius.circular(12),
+                                           border: Border.all(
+                                             color: Colors.white.withValues(alpha: 0.5),
+                                           ),
+                                         ),
+                                         child: TextFormField(
+                                           controller: _emailController,
+                                           decoration: InputDecoration(
+                                             labelText: 'Email',
+                                             labelStyle: TextStyle(color: context.appColors.textPrimary),
                                             prefixIcon: Icon(Icons.email, color: const Color(0xFF667eea)),
                                             border: InputBorder.none,
                                             contentPadding: EdgeInsets.symmetric(
@@ -320,26 +317,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           },
                                         ),
                                       ),
-                                      SizedBox(height: Responsive.scale(context, 10, 12, 14)),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.6),
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: Colors.white.withValues(alpha: 0.5),
-                                          ),
-                                        ),
-                                        child: TextFormField(
-                                          controller: _passwordController,
-                                          decoration: InputDecoration(
-                                            labelText: 'Contraseña',
-                                            labelStyle: TextStyle(color: Colors.grey.shade700),
-                                            prefixIcon: Icon(Icons.lock, color: const Color(0xFF667eea)),
-                                            suffixIcon: IconButton(
-                                              icon: Icon(
-                                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                                                color: Colors.grey.shade700,
-                                              ),
+                                       SizedBox(height: Responsive.scale(context, 10, 12, 14)),
+                                       Container(
+                                         decoration: BoxDecoration(
+                                           color: context.appColors.cardBackground.withValues(alpha: 0.6),
+                                           borderRadius: BorderRadius.circular(12),
+                                           border: Border.all(
+                                             color: Colors.white.withValues(alpha: 0.5),
+                                           ),
+                                         ),
+                                         child: TextFormField(
+                                           controller: _passwordController,
+                                           decoration: InputDecoration(
+                                             labelText: 'Contraseña',
+                                             labelStyle: TextStyle(color: context.appColors.textPrimary),
+                                             prefixIcon: Icon(Icons.lock, color: const Color(0xFF667eea)),
+                                             suffixIcon: IconButton(
+                                               icon: Icon(
+                                                 _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                                 color: context.appColors.textPrimary,
+                                               ),
                                               onPressed: () {
                                                 setState(() {
                                                   _obscurePassword = !_obscurePassword;
@@ -365,25 +362,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                       ),
                                       SizedBox(height: Responsive.scale(context, 10, 12, 14)),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.6),
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: Colors.white.withValues(alpha: 0.5),
-                                          ),
-                                        ),
-                                        child: TextFormField(
-                                          controller: _confirmPasswordController,
-                                          decoration: InputDecoration(
-                                            labelText: 'Confirmar Contraseña',
-                                            labelStyle: TextStyle(color: Colors.grey.shade700),
-                                            prefixIcon: Icon(Icons.lock_outline, color: const Color(0xFF667eea)),
-                                            suffixIcon: IconButton(
-                                              icon: Icon(
-                                                _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
-                                                color: Colors.grey.shade700,
-                                              ),
+                                       Container(
+                                         decoration: BoxDecoration(
+                                           color: context.appColors.cardBackground.withValues(alpha: 0.6),
+                                           borderRadius: BorderRadius.circular(12),
+                                           border: Border.all(
+                                             color: Colors.white.withValues(alpha: 0.5),
+                                           ),
+                                         ),
+                                         child: TextFormField(
+                                           controller: _confirmPasswordController,
+                                           decoration: InputDecoration(
+                                             labelText: 'Confirmar Contraseña',
+                                             labelStyle: TextStyle(color: context.appColors.textPrimary),
+                                             prefixIcon: Icon(Icons.lock_outline, color: const Color(0xFF667eea)),
+                                             suffixIcon: IconButton(
+                                               icon: Icon(
+                                                 _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                                                 color: context.appColors.textPrimary,
+                                               ),
                                               onPressed: () {
                                                 setState(() {
                                                   _obscureConfirmPassword = !_obscureConfirmPassword;
@@ -449,33 +446,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       SizedBox(height: Responsive.scale(context, 12, 14, 16)),
                                       Row(
                                         children: [
-                                          Expanded(child: Divider(color: Colors.grey.shade400.withValues(alpha: 0.5))),
-                                          Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: Responsive.scale(context, 10, 12, 14),
-                                            ),
-                                            child: Text(
-                                              'o regístrate con',
-                                              style: TextStyle(
-                                                color: Colors.grey.shade600,
-                                                fontSize: Responsive.scale(context, 12, 13, 14),
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(child: Divider(color: Colors.grey.shade400.withValues(alpha: 0.5))),
+                                           Expanded(child: Divider(color: context.appColors.border.withValues(alpha: 0.5))),
+                                           Padding(
+                                             padding: EdgeInsets.symmetric(
+                                               horizontal: Responsive.scale(context, 10, 12, 14),
+                                             ),
+                                             child: Text(
+                                               'o regístrate con',
+                                               style: TextStyle(
+                                                 color: context.appColors.textSecondary,
+                                                 fontSize: Responsive.scale(context, 12, 13, 14),
+                                               ),
+                                             ),
+                                           ),
+                                           Expanded(child: Divider(color: context.appColors.border.withValues(alpha: 0.5))),
                                         ],
                                       ),
                                       SizedBox(height: Responsive.scale(context, 12, 14, 16)),
-                                      Container(
-                                        width: double.infinity,
-                                        height: Responsive.scale(context, 44, 46, 48),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.7),
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: Colors.white.withValues(alpha: 0.5),
-                                          ),
-                                        ),
+                                       Container(
+                                         width: double.infinity,
+                                         height: Responsive.scale(context, 44, 46, 48),
+                                         decoration: BoxDecoration(
+                                           color: context.appColors.cardBackground.withValues(alpha: 0.7),
+                                           borderRadius: BorderRadius.circular(12),
+                                           border: Border.all(
+                                             color: Colors.white.withValues(alpha: 0.5),
+                                           ),
+                                         ),
                                         child: OutlinedButton.icon(
                                           onPressed: _isLoading ? null : _handleGoogleSignIn,
                                           style: OutlinedButton.styleFrom(
@@ -503,27 +500,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               ),
                                             ),
                                           ),
-                                          label: Text(
-                                            'Continuar con Google',
-                                            style: TextStyle(
-                                              color: Colors.black87,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: Responsive.scale(context, 13, 14, 15),
-                                            ),
-                                          ),
+                                           label: Text(
+                                             'Continuar con Google',
+                                             style: TextStyle(
+                                               color: context.appColors.textPrimary,
+                                               fontWeight: FontWeight.w600,
+                                               fontSize: Responsive.scale(context, 13, 14, 15),
+                                             ),
+                                           ),
                                         ),
                                       ),
                                       SizedBox(height: Responsive.scale(context, 12, 14, 16)),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Text(
-                                            '¿Ya tienes cuenta?',
-                                            style: TextStyle(
-                                              color: Colors.grey.shade700,
-                                              fontSize: Responsive.scale(context, 12, 13, 14),
-                                            ),
-                                          ),
+                                           Text(
+                                             '¿Ya tienes cuenta?',
+                                             style: TextStyle(
+                                               color: context.appColors.textPrimary,
+                                               fontSize: Responsive.scale(context, 12, 13, 14),
+                                             ),
+                                           ),
                                           TextButton(
                                             onPressed: () {
                                               Navigator.of(context).pop();

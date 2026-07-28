@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_colors_extension.dart';
 
 /// Representa un paso del tour interactivo.
 class TutorialStep {
@@ -364,7 +365,7 @@ class _TutorialOverlayState extends State<TutorialOverlay>
         margin: const EdgeInsets.symmetric(horizontal: 24),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.appColors.cardBackground,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: step.accentColor.withAlpha(100),
@@ -372,7 +373,7 @@ class _TutorialOverlayState extends State<TutorialOverlay>
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(25),
+              color: context.appColors.shadow,
               blurRadius: 20,
               offset: const Offset(0, 6),
             ),
@@ -419,7 +420,7 @@ class _TutorialOverlayState extends State<TutorialOverlay>
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
-                color: Colors.grey[800],
+                color: context.appColors.textPrimary,
                 height: 1.4,
                 fontWeight: FontWeight.w500,
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors_extension.dart';
 import '../utils/responsive.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/responsive_container.dart';
@@ -243,7 +244,7 @@ class HelpScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(8),
+            color: context.appColors.shadow,
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

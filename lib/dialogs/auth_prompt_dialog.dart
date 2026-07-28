@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../logic/auth_provider.dart';
 import '../services/auth_prompt_service.dart';
+import '../theme/app_colors_extension.dart';
 import '../widgets/responsive_snack_bar.dart';
 
 /// Diálogo que invita al usuario a crear una cuenta o iniciar sesión.
@@ -137,14 +138,17 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
         child: Container(
           constraints: const BoxConstraints(maxWidth: 360),
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.deepPurple[50]!, Colors.indigo[50]!],
-            ),
-            borderRadius: BorderRadius.circular(28),
-          ),
+           decoration: BoxDecoration(
+             gradient: context.isDarkMode
+                 ? null
+                 : LinearGradient(
+                     begin: Alignment.topLeft,
+                     end: Alignment.bottomRight,
+                     colors: [Colors.deepPurple[50]!, Colors.indigo[50]!],
+                   ),
+             color: context.isDarkMode ? context.appColors.cardBackground : null,
+             borderRadius: BorderRadius.circular(28),
+           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -187,14 +191,14 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
 
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.deepPurple[100]!,
-                    width: 1.5,
-                  ),
-                ),
+               decoration: BoxDecoration(
+                 color: context.appColors.surface,
+                 borderRadius: BorderRadius.circular(16),
+                 border: Border.all(
+                   color: Colors.deepPurple[100]!,
+                   width: 1.5,
+                 ),
+               ),
                 child: Column(
                   children: [
                     _buildBenefitRow(
@@ -260,13 +264,13 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
                 height: 50,
                 child: OutlinedButton.icon(
                   onPressed: (_isLoading || _isNavigating) ? null : _signInWithGoogle,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.deepPurple[400]!, width: 2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    backgroundColor: Colors.white,
-                  ),
+                   style: OutlinedButton.styleFrom(
+                     side: BorderSide(color: Colors.deepPurple[400]!, width: 2),
+                     shape: RoundedRectangleBorder(
+                       borderRadius: BorderRadius.circular(14),
+                     ),
+                     backgroundColor: context.appColors.cardBackground,
+                   ),
                   icon: Container(
                     width: 22,
                     height: 22,
@@ -308,14 +312,14 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
 
               TextButton(
                 onPressed: (_isLoading || _isNavigating) ? null : _continueAsGuest,
-                child: Text(
-                  'Continuar como invitado',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                 child: Text(
+                   'Continuar como invitado',
+                   style: TextStyle(
+                     fontSize: 15,
+                     color: context.appColors.textSecondary,
+                     fontWeight: FontWeight.w500,
+                   ),
+                 ),
               ),
             ],
           ),
@@ -330,14 +334,14 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
         Icon(icon, size: 20, color: Colors.deepPurple[500]),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[800],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+           child: Text(
+             text,
+             style: TextStyle(
+               fontSize: 14,
+               color: context.appColors.textPrimary,
+               fontWeight: FontWeight.w500,
+             ),
+           ),
         ),
       ],
     );

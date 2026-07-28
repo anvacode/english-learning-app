@@ -23,12 +23,20 @@ class AuthProvider extends ChangeNotifier {
   String? _guestId;
   bool _isDisposed = false;
 
+  /// Completer que se completa cuando el auth state está listo.
+  final Completer<void> _authReadyCompleter = Completer<void>();
+
+  /// Future que se completa cuando el auth state está listo.
+  /// Usar en splash screen en lugar de un delay fijo.
+  Future<void> get authReady => _authReadyCompleter.future;
+
   AuthStatus get status => _status;
   User? get user => _user;
   String? get guestId => _guestId;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
   bool get isGuest => _status == AuthStatus.guest;
-  bool get isAdmin => _user != null && AdminAuthService.isAdminEmail(_user!.email ?? '');
+  bool get isAdmin =>
+      _user != null && AdminAuthService.isAdminEmail(_user!.email ?? '');
 
   AuthProvider() {
     _initialize();
@@ -56,22 +64,30 @@ class AuthProvider extends ChangeNotifier {
       if (user != null) {
         _status = AuthStatus.authenticated;
 
-        // Si había una sesión de invitado, migrar los datos
+        // Si había una sesión de invitado, migrar TODOS los datos
         if (_guestId != null) {
-          debugPrint('🔄 Migrando datos de invitado...');
+          debugPrint('🔄 Migrando datos completos de invitado...');
           final migrationSuccess = await _syncService.migrateGuestData(
             _guestId!,
           );
           if (_isDisposed) return;
 
-          // Limpiar guestId de SharedPreferences
+          // Limpiar guestId de SharedPreferences solo si migración exitosa
           if (migrationSuccess) {
             final prefs = await SharedPreferences.getInstance();
             await prefs.remove(_guestIdKey);
+            _guestId = null;
+
+            // Descargar datos de la nube para tener el estado más reciente
+            // (por si el usuario ya tenía datos en otro dispositivo)
+            await _syncService.downloadUserData();
+            if (_isDisposed) return;
           }
-          _guestId = null;
         } else {
-          // Descargar datos del usuario desde Firebase
+          // Usuario existente: primero subir cambios locales, luego descargar
+          // Esto evita que cambios locales no sincronizados se pierdan
+          await _syncService.syncUserData();
+          if (_isDisposed) return;
           await _syncService.downloadUserData();
           if (_isDisposed) return;
         }
@@ -79,17 +95,25 @@ class AuthProvider extends ChangeNotifier {
         // Iniciar sincronización automática
         _syncService.setupAutoSync();
 
-        // Sincronizar datos actuales
-        _syncService.syncUserData();
+        // NO llamar syncUserData() aquí - ya se hizo arriba
       } else {
         // Check if there's a guest session
         await _checkGuestSession();
       }
+
+      // Completar el completer en la primera emisión del auth state
+      if (!_authReadyCompleter.isCompleted) {
+        _authReadyCompleter.complete();
+      }
+
       notifyListeners();
     });
   }
 
-  Future<void> signInWithEmailAndPassword(String email, String password) async {
+  Future<void> signInWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
     try {
       if (!_firebaseService.isInitialized) {
         throw 'Servicios de autenticación no disponibles. Intenta más tarde.';
@@ -134,9 +158,22 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Cierra sesión y limpia todos los datos locales del usuario.
+  ///
+  /// 1. Sincroniza los datos actuales a Firestore (para no perder nada)
+  /// 2. Limpia SharedPreferences (datos del usuario)
+  /// 3. Cierra sesión en Firebase Auth
   Future<void> signOut() async {
     try {
       _syncService.stopAutoSync();
+
+      // 1. Sincronizar datos actuales antes de cerrar sesión
+      await _syncService.syncUserData();
+
+      // 2. Limpiar datos locales del usuario
+      await SyncService.clearAllUserData();
+
+      // 3. Cerrar sesión en Firebase
       await _firebaseService.signOut();
     } catch (e) {
       debugPrint('Error signing out: $e');

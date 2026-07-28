@@ -17,6 +17,7 @@ import '../models/matching_item.dart';
 import '../services/audio_service.dart';
 import '../services/effects_service.dart';
 import '../services/firestore_progress_service.dart';
+import '../theme/app_colors_extension.dart';
 import '../theme/text_styles.dart';
 import '../utils/responsive.dart';
 import '../widgets/confetti_overlay.dart';
@@ -633,7 +634,7 @@ class _LessonScreenState extends State<LessonScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
-                  color: Colors.grey[50],
+                  color: context.appColors.surfaceVariant,
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
@@ -749,7 +750,7 @@ class _LessonScreenState extends State<LessonScreen> {
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
-                        color: Colors.grey[50],
+                        color: context.appColors.surfaceVariant,
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
@@ -845,7 +846,7 @@ class _LessonScreenState extends State<LessonScreen> {
                       Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
-                          color: Colors.grey[50],
+                          color: context.appColors.surfaceVariant,
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
@@ -961,9 +962,9 @@ class _LessonScreenState extends State<LessonScreen> {
         textColor = Colors.white;
         iconColor = Colors.white;
       } else {
-        backgroundColor = Colors.grey[300]!;
-        textColor = Colors.grey[600]!;
-        iconColor = Colors.grey[600]!;
+        backgroundColor = context.appColors.surfaceVariant;
+        textColor = context.appColors.textSecondary;
+        iconColor = context.appColors.textSecondary;
       }
     } else {
       if (isSelected) {
@@ -971,8 +972,8 @@ class _LessonScreenState extends State<LessonScreen> {
         textColor = Colors.white;
         iconColor = Colors.white;
       } else {
-        backgroundColor = Colors.grey[200]!;
-        textColor = Colors.black;
+        backgroundColor = context.appColors.surfaceVariant;
+        textColor = context.appColors.textPrimary;
         iconColor = Colors.deepPurple;
       }
     }
@@ -1060,7 +1061,7 @@ class _LessonScreenState extends State<LessonScreen> {
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
-                    disabledBackgroundColor: Colors.grey[300],
+                    disabledBackgroundColor: context.appColors.surfaceVariant,
                     padding: EdgeInsets.symmetric(
                       horizontal: Responsive.scale(context, 24, 32, 40),
                       vertical: Responsive.scale(context, 12, 16, 18),
@@ -1140,7 +1141,7 @@ class _LessonScreenState extends State<LessonScreen> {
                         children: [
                           LinearProgressIndicator(
                             value: adjustedProgress,
-                            backgroundColor: Colors.grey[300],
+                            backgroundColor: context.appColors.surfaceVariant,
                             color: Colors.deepPurple,
                             minHeight: 8,
                           ),
@@ -1160,7 +1161,7 @@ class _LessonScreenState extends State<LessonScreen> {
                                 '${(adjustedProgress * 100).toInt()}%',
                                 style: TextStyle(
                                   fontSize: Responsive.scale(context, 11, 12, 13),
-                                  color: Colors.grey[600],
+                                  color: context.appColors.textSecondary,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
