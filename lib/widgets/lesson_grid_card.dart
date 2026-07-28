@@ -97,7 +97,7 @@ class _LessonGridCardState extends State<LessonGridCard> {
 
         if (widget.isLocked || (!isCompleted && !isInProgress)) {
           return ColorFiltered(
-            colorFilter: ColorFilter.matrix(<double>[
+            colorFilter: const ColorFilter.matrix(<double>[
               0.2126, 0.7152, 0.0722, 0, 0,
               0.2126, 0.7152, 0.0722, 0, 0,
               0.2126, 0.7152, 0.0722, 0, 0,
@@ -122,7 +122,7 @@ class _LessonGridCardState extends State<LessonGridCard> {
           top: 0,
           left: 0,
           child: Text(
-            '${(widget.index + 1).toString().padLeft(2, '0')}',
+            (widget.index + 1).toString().padLeft(2, '0'),
             style: TextStyle(
               color: Colors.white.withAlpha(180),
               fontSize: Responsive.scale(context, 10, 11, 12),

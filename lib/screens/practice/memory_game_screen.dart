@@ -107,7 +107,6 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> with SingleTickerPr
         imagePath: '',
         word: word,
         color: Colors.blue[100],
-        isColorCard: false,
       ));
     }
     
@@ -457,7 +456,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> with SingleTickerPr
           Expanded(
             child: Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 800, maxHeight: 350),
+                constraints: const BoxConstraints(maxWidth: 800, maxHeight: 350),
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 6,

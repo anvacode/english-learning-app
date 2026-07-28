@@ -320,7 +320,6 @@ class _SpellingPracticeScreenState extends State<SpellingPracticeScreen>
           SizedBox(height: Responsive.scale(context, 16, 20, 24)),
           Expanded(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   flex: 2,

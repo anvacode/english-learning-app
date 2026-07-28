@@ -52,7 +52,7 @@ class HelpScreen extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         'Encuentra respuestas a tus preguntas',
                         style: TextStyle(
@@ -163,7 +163,7 @@ class HelpScreen extends StatelessWidget {
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
                               'english.learning.app.4559e@gmail.com',
                               style: TextStyle(
@@ -205,7 +205,7 @@ class HelpScreen extends StatelessWidget {
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
                               '2.0.0',
                               style: TextStyle(

@@ -199,7 +199,6 @@ class _LessonCompletionScreenState extends State<LessonCompletionScreen>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               flex: 2,

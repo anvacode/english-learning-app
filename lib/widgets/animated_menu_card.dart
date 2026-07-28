@@ -180,7 +180,6 @@ class _AnimatedMenuCardState extends State<AnimatedMenuCard>
                   child: Padding(
                     padding: EdgeInsets.all(Responsive.scale(context, 12, 16, 20)),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(

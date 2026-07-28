@@ -402,7 +402,6 @@ class _ListeningPracticeScreenState extends State<ListeningPracticeScreen>
           SizedBox(height: Responsive.scale(context, 16, 20, 24)),
           Expanded(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   flex: 2,

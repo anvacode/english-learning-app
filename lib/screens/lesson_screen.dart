@@ -736,11 +736,10 @@ class _LessonScreenState extends State<LessonScreen> {
   Widget _buildTabletLayout(BuildContext context, LessonItem currentItem) {
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 800),
+        constraints: const BoxConstraints(maxWidth: 800),
         child: Padding(
           padding: EdgeInsets.all(Responsive.scale(context, 16, 20, 24)),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 flex: 2,
@@ -835,7 +834,6 @@ class _LessonScreenState extends State<LessonScreen> {
         child: Padding(
           padding: EdgeInsets.all(Responsive.scale(context, 20, 28, 36)),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 flex: 2,
@@ -1145,7 +1143,7 @@ class _LessonScreenState extends State<LessonScreen> {
                             color: Colors.deepPurple,
                             minHeight: 8,
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

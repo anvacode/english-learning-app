@@ -173,7 +173,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
             Expanded(
               child: Center(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 600),
+                  constraints: const BoxConstraints(maxWidth: 600),
                   child: PageView.builder(
                     controller: _pageController,
                     itemCount: _cards.length,
@@ -196,7 +196,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                 padding: EdgeInsets.all(Responsive.scale(context, 20, 24, 28)),
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 600),
+                    constraints: const BoxConstraints(maxWidth: 600),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [

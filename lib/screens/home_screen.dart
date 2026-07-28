@@ -12,9 +12,9 @@ import '../widgets/connection_banner.dart';
 import 'auth/register_screen.dart';
 import 'diagnostic/diagnostic_intro_screen.dart';
 import 'home/home_grid_view.dart';
+import 'lessons_screen.dart';
 import 'practice/practice_hub_screen.dart';
 import 'settings_screen.dart';
-import 'lessons_screen.dart';
 import 'tutorial/interactive_tutorial.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -30,7 +30,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
   bool _authPromptChecked = false;
   bool _diagnosticChecked = false;
   bool _isNavigating = false;

@@ -199,7 +199,6 @@ class _LessonsScreenState extends State<LessonsScreen> {
       child: ConstrainedBox(
         constraints: BoxConstraints(minHeight: availableHeight),
         child: Align(
-          alignment: Alignment.center,
           child: Padding(
             padding: EdgeInsets.all(horizontalPadding),
             child: Row(

@@ -55,7 +55,6 @@ class _FloatingParticlesBackgroundState
         final size = Size(constraints.maxWidth, constraints.maxHeight);
         
         return Stack(
-          clipBehavior: Clip.hardEdge,
           children: [
             Positioned.fill(
               child: RepaintBoundary(
@@ -83,7 +82,6 @@ class _FloatingParticlesBackgroundState
                     animation: _controller,
                     builder: (context, child) {
                       return Stack(
-                        clipBehavior: Clip.hardEdge,
                         children: _particles.map((p) {
                           final pos = p.getPosition(_controller.value, size);
                           return Positioned(

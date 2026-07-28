@@ -1,17 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
+// ignore_for_file: avoid_print
 import 'package:english_ai_app/logic/auth_provider.dart';
 import 'package:english_ai_app/logic/lesson_controller.dart';
 import 'package:english_ai_app/logic/theme_provider.dart';
-import 'package:english_ai_app/services/connectivity_service.dart';
+import 'package:english_ai_app/screens/achievements_screen.dart';
 import 'package:english_ai_app/screens/lessons_screen.dart';
 import 'package:english_ai_app/screens/practice/practice_hub_screen.dart';
-import 'package:english_ai_app/screens/settings_screen.dart';
-import 'package:english_ai_app/screens/shop_screen.dart';
-import 'package:english_ai_app/screens/achievements_screen.dart';
 import 'package:english_ai_app/screens/profile/profile_screen.dart';
 import 'package:english_ai_app/screens/purchased_items_screen.dart';
+import 'package:english_ai_app/screens/settings_screen.dart';
+import 'package:english_ai_app/screens/shop_screen.dart';
+import 'package:english_ai_app/services/connectivity_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Widget wrapWithProviders(Widget child) {

@@ -239,7 +239,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         vertical: Responsive.scale(context, 8, 12, 16),
                       ),
                       child: ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: 420),
+                        constraints: const BoxConstraints(maxWidth: 420),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: BackdropFilter(
@@ -250,7 +250,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                  borderRadius: BorderRadius.circular(20),
                                  border: Border.all(
                                    color: Colors.white.withValues(alpha: 0.4),
-                                   width: 1,
                                  ),
                                  boxShadow: [
                                    BoxShadow(
@@ -298,7 +297,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                            decoration: InputDecoration(
                                              labelText: 'Email',
                                              labelStyle: TextStyle(color: context.appColors.textPrimary),
-                                            prefixIcon: Icon(Icons.email, color: const Color(0xFF667eea)),
+                                            prefixIcon: const Icon(Icons.email, color: Color(0xFF667eea)),
                                             border: InputBorder.none,
                                             contentPadding: EdgeInsets.symmetric(
                                               horizontal: Responsive.scale(context, 14, 16, 18),
@@ -331,7 +330,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                            decoration: InputDecoration(
                                              labelText: 'Contraseña',
                                              labelStyle: TextStyle(color: context.appColors.textPrimary),
-                                             prefixIcon: Icon(Icons.lock, color: const Color(0xFF667eea)),
+                                             prefixIcon: const Icon(Icons.lock, color: Color(0xFF667eea)),
                                              suffixIcon: IconButton(
                                                icon: Icon(
                                                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
@@ -375,7 +374,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                            decoration: InputDecoration(
                                              labelText: 'Confirmar Contraseña',
                                              labelStyle: TextStyle(color: context.appColors.textPrimary),
-                                             prefixIcon: Icon(Icons.lock_outline, color: const Color(0xFF667eea)),
+                                             prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF667eea)),
                                              suffixIcon: IconButton(
                                                icon: Icon(
                                                  _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,

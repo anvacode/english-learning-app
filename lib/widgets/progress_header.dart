@@ -290,7 +290,7 @@ class _ProgressHeaderState extends State<ProgressHeader>
       decoration: BoxDecoration(
         color: levelColor.withAlpha(35),
         borderRadius: BorderRadius.circular(Responsive.scale(context, 8, 10, 12)),
-        border: Border.all(color: levelColor.withAlpha(50), width: 1),
+        border: Border.all(color: levelColor.withAlpha(50)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -299,7 +299,7 @@ class _ProgressHeaderState extends State<ProgressHeader>
             levelEmoji,
             style: TextStyle(fontSize: Responsive.scale(context, 12, 14, 16)),
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             levelText,
             style: TextStyle(
@@ -726,7 +726,7 @@ class _ProgressHeaderState extends State<ProgressHeader>
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     '${widget.completedLessons} de ${widget.totalLessons} lecciones',
                     style: TextStyle(
@@ -826,7 +826,7 @@ class _ProgressHeaderState extends State<ProgressHeader>
         decoration: BoxDecoration(
           color: Colors.white.withAlpha(30),
           borderRadius: BorderRadius.circular(Responsive.scale(context, 8, 10, 12)),
-          border: Border.all(color: Colors.white.withAlpha(50), width: 1),
+          border: Border.all(color: Colors.white.withAlpha(50)),
         ),
         child: Text(
           '$percentage%',

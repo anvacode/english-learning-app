@@ -226,7 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   vertical: Responsive.scale(context, 12, 16, 20),
                 ),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 420),
+                  constraints: const BoxConstraints(maxWidth: 420),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: BackdropFilter(
@@ -237,7 +237,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.4),
-                              width: 1,
                             ),
                             boxShadow: [
                               BoxShadow(
@@ -285,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                      decoration: InputDecoration(
                                        labelText: 'Email',
                                        labelStyle: TextStyle(color: context.appColors.textPrimary),
-                                      prefixIcon: Icon(AppIcons.email, color: const Color(0xFF667eea)),
+                                      prefixIcon: const Icon(AppIcons.email, color: Color(0xFF667eea)),
                                       border: InputBorder.none,
                                       contentPadding: EdgeInsets.symmetric(
                                         horizontal: Responsive.scale(context, 14, 16, 18),
@@ -318,7 +317,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                      decoration: InputDecoration(
                                        labelText: 'Contraseña',
                                        labelStyle: TextStyle(color: context.appColors.textPrimary),
-                                       prefixIcon: Icon(AppIcons.lock, color: const Color(0xFF667eea)),
+                                       prefixIcon: const Icon(AppIcons.lock, color: Color(0xFF667eea)),
                                        suffixIcon: IconButton(
                                          icon: Icon(
                                            _obscurePassword ? Icons.visibility_off : Icons.visibility,

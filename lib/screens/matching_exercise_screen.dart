@@ -357,7 +357,6 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
       child: Column(
         children: [
           Expanded(
-            flex: 1,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -391,7 +390,6 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
           ),
           SizedBox(height: Responsive.scale(context, 12, 16, 20)),
           Expanded(
-            flex: 1,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -574,8 +572,8 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
                       top: 8,
                       right: 8,
                       child: Container(
-                        padding: EdgeInsets.all(4),
-                        decoration: BoxDecoration(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
                           color: Colors.deepPurple,
                           shape: BoxShape.circle,
                         ),

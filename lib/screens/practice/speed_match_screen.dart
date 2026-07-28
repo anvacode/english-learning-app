@@ -356,7 +356,6 @@ class _SpeedMatchScreenState extends State<SpeedMatchScreen> {
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              childAspectRatio: 1.0,
             ),
             itemCount: _items.length,
             itemBuilder: (context, index) => _buildImageCard(context, index),
@@ -413,7 +412,7 @@ class _SpeedMatchScreenState extends State<SpeedMatchScreen> {
                   flex: 3,
                   child: Center(
                     child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 500),
+                      constraints: const BoxConstraints(maxWidth: 500),
                       child: GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -421,7 +420,6 @@ class _SpeedMatchScreenState extends State<SpeedMatchScreen> {
                           crossAxisCount: 3,
                           crossAxisSpacing: 12,
                           mainAxisSpacing: 12,
-                          childAspectRatio: 1.0,
                         ),
                         itemCount: _items.length,
                         itemBuilder: (context, index) => _buildImageCard(context, index),

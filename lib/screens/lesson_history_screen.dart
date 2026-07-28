@@ -209,7 +209,7 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       _formatDate(lastActivity),
                       style: TextStyle(
@@ -217,7 +217,7 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Container(
@@ -241,7 +241,7 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
                                     ? Colors.green[600]
                                     : Colors.orange[600],
                               ),
-                              SizedBox(width: 4),
+                              const SizedBox(width: 4),
                               Text(
                                 '$accuracy% acierto',
                                 style: TextStyle(

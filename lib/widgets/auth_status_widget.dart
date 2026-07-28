@@ -300,7 +300,7 @@ class _AuthStatusWidgetState extends State<AuthStatusWidget>
               ),
             ),
             const SizedBox(width: 6),
-            Text(
+            const Text(
               'Sincronizado',
               style: TextStyle(
                 color: Colors.white,

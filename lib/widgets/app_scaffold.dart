@@ -62,7 +62,7 @@ class AppScaffold extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'English Learning',
                       style: TextStyle(
                         color: Colors.white,
@@ -70,14 +70,14 @@ class AppScaffold extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: Colors.white.withAlpha(30),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: StarDisplay(
+                      child: const StarDisplay(
                         iconSize: 16,
                         fontSize: 14,
                         textColor: Colors.white,
@@ -87,7 +87,7 @@ class AppScaffold extends StatelessWidget {
                 ),
               ),
               Divider(color: Colors.white.withAlpha(30), height: 1),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ...List.generate(4, (index) {
                 final isSelected = currentIndex == index;
                 return Padding(
