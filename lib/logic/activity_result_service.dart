@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/activity_result.dart';
+import '../services/sync_service.dart';
 
 class ActivityResultService {
   static const String _resultsKey = 'activity_results';
@@ -23,6 +24,7 @@ class ActivityResultService {
     
     // Guardar lista actualizada
     await prefs.setString(_resultsKey, jsonEncode(jsonList));
+    SyncService().scheduleSync();
   }
 
   /// Recupera todos los resultados de actividad guardados.

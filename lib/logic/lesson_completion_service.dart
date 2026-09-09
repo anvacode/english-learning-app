@@ -38,9 +38,7 @@ class LessonCompletionService {
       _storageKey,
       jsonEncode(completions.map((c) => c.toJson()).toList()),
     );
-
-    // Disparar sincronización con la nube
-    SyncService().syncUserDataDebounced();
+    SyncService().scheduleSync();
   }
 
   /// Check if a lesson has been completed (mastered).

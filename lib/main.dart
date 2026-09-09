@@ -12,8 +12,8 @@ import 'services/audio_service.dart';
 import 'services/connectivity_service.dart';
 import 'services/firebase_service.dart';
 import 'services/sync_queue_service.dart';
-import 'services/sync_service.dart';
-import 'theme/app_theme.dart';
+import 'services/usage_tracking_service.dart';
+import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,9 +65,31 @@ void main() async {
     debugPrint('🔄 App will continue in offline mode');
   }
 
+  await UsageTrackingService.instance.initialize();
+
   // Register lifecycle observer for cleanup on exit
   AppLifecycleListener(
+    onResume: () {
+      UsageTrackingService.instance.resume();
+    },
+    onInactive: () {
+      UsageTrackingService.instance.pause().then(
+        (_) => SyncService().scheduleSync(),
+      );
+    },
+    onPause: () {
+      UsageTrackingService.instance.pause().then(
+        (_) => SyncService().scheduleSync(),
+      );
+    },
+    onDetach: () {
+      UsageTrackingService.instance.pause().then(
+        (_) => SyncService().scheduleSync(),
+      );
+    },
     onExitRequested: () async {
+      await UsageTrackingService.instance.pause();
+      await SyncService().syncUserData();
       AudioService.disposeInstance();
       SyncService.disposeInstance();
       SyncQueueService.disposeInstance();
