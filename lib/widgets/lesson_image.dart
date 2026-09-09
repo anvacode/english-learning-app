@@ -156,18 +156,20 @@ class _LessonImageState extends State<LessonImage>
 
   /// Obtiene un emoji relacionado con el color para hacerlo más visual
   String _getColorEmoji(Color color) {
-    // Comparar con colores comunes usando value (Dart 3.6 compatible)
-    final colorValue = color.value;
-    if (colorValue == Colors.red.value) return '🔴';
-    if (colorValue == Colors.blue.value) return '🔵';
-    if (colorValue == Colors.green.value) return '🟢';
-    if (colorValue == Colors.yellow.value) return '🟡';
-    if (colorValue == Colors.orange.value) return '🟠';
-    if (colorValue == Colors.purple.value) return '🟣';
-    if (colorValue == Colors.brown.value) return '🟤';
-    if (colorValue == Colors.black.value) return '⚫';
-    if (colorValue == Colors.white.value) return '⚪';
-    if (colorValue == Colors.pink.value) return '🩷';
+    // Comparar con colores comunes usando componentes (Dart 3.6 compatible)
+    // ARGB = (a << 24) | (r << 16) | (g << 8) | b
+    int argb(Color c) => (c.a.toInt() << 24) | (c.r.toInt() << 16) | (c.g.toInt() << 8) | c.b.toInt();
+    final colorValue = argb(color);
+    if (colorValue == argb(Colors.red)) return '🔴';
+    if (colorValue == argb(Colors.blue)) return '🔵';
+    if (colorValue == argb(Colors.green)) return '🟢';
+    if (colorValue == argb(Colors.yellow)) return '🟡';
+    if (colorValue == argb(Colors.orange)) return '🟠';
+    if (colorValue == argb(Colors.purple)) return '🟣';
+    if (colorValue == argb(Colors.brown)) return '🟤';
+    if (colorValue == argb(Colors.black)) return '⚫';
+    if (colorValue == argb(Colors.white)) return '⚪';
+    if (colorValue == argb(Colors.pink)) return '🩷';
     
     // Color por defecto
     return '🎨';
