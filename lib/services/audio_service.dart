@@ -1,7 +1,7 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 /// Servicio para manejar audio, text-to-speech y efectos de sonido.
 ///

@@ -1,6 +1,7 @@
+import 'package:english_ai_app/logic/lesson_completion_service.dart';
 import 'package:english_ai_app/models/badge.dart';
 import 'package:english_ai_app/models/lesson.dart';
-import 'package:english_ai_app/logic/lesson_completion_service.dart';
+import 'package:english_ai_app/services/sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Badge definitions for each lesson.
@@ -21,25 +22,47 @@ final Map<String, Map<String, String>> badgeDefinitions = {
 /// 
 /// Una lección tiene badge desbloqueado si existe un LessonCompletion record para ella.
 class BadgeService {
+  static final Map<String, Badge?> _cache = {};
+  static bool _cacheLoaded = false;
+
+  /// Carga todos los badges en caché de una vez.
+  static Future<void> _loadCache() async {
+    if (_cacheLoaded) return;
+
+    final completedIds = await LessonCompletionService.getCompletedLessonIds();
+
+    for (final entry in badgeDefinitions.entries) {
+      final lessonId = entry.key;
+      final badgeDef = entry.value;
+      final isUnlocked = completedIds.contains(lessonId);
+
+      _cache[lessonId] = Badge(
+        lessonId: lessonId,
+        title: badgeDef['title']!,
+        icon: badgeDef['icon']!,
+        unlocked: isUnlocked,
+      );
+    }
+
+    _cacheLoaded = true;
+  }
+
+  /// Invalida la caché (llamar cuando cambie el estado de una lección).
+  static void invalidateCache() {
+    _cache.clear();
+    _cacheLoaded = false;
+  }
+
   /// Get all badges for a set of lessons.
   /// Badge is unlocked if a LessonCompletion record exists for the lesson.
   static Future<List<Badge>> getBadges(List<Lesson> lessons) async {
-    final completedIds = await LessonCompletionService.getCompletedLessonIds();
+    await _loadCache();
+
     final badges = <Badge>[];
-
     for (final lesson in lessons) {
-      final isUnlocked = completedIds.contains(lesson.id);
-
-      final badgeDef = badgeDefinitions[lesson.id];
-      if (badgeDef != null) {
-        badges.add(
-          Badge(
-            lessonId: lesson.id,
-            title: badgeDef['title']!,
-            icon: badgeDef['icon']!,
-            unlocked: isUnlocked,
-          ),
-        );
+      final badge = _cache[lesson.id];
+      if (badge != null) {
+        badges.add(badge);
       }
     }
 
@@ -48,17 +71,8 @@ class BadgeService {
 
   /// Get a badge for a specific lesson.
   static Future<Badge?> getBadge(Lesson lesson) async {
-    final isCompleted = await LessonCompletionService.isLessonCompleted(lesson.id);
-
-    final badgeDef = badgeDefinitions[lesson.id];
-    if (badgeDef == null) return null;
-
-    return Badge(
-      lessonId: lesson.id,
-      title: badgeDef['title']!,
-      icon: badgeDef['icon']!,
-      unlocked: isCompleted,
-    );
+    await _loadCache();
+    return _cache[lesson.id];
   }
 
   /// Check if a lesson just achieved mastery and award the badge.
@@ -88,6 +102,11 @@ class BadgeService {
 
     // Award the badge (first time mastery achieved)
     await prefs.setBool(awardedKey, true);
+    invalidateCache();
+
+    // Disparar sincronización con la nube
+    SyncService().syncUserDataDebounced();
+
     return true; // Just awarded
   }
 

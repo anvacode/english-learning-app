@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors_extension.dart';
+
 /// Widget que muestra un avatar circular.
 /// 
 /// Soporta avatares predefinidos (0-7) usando emojis
@@ -79,7 +81,7 @@ class AvatarWidget extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(26),
+            color: context.appColors.shadow,
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),

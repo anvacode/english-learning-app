@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors_extension.dart';
+import '../utils/responsive.dart';
 
 /// Diálogo de error moderno y atractivo.
 /// 
@@ -28,7 +30,6 @@ class ErrorDialog extends StatelessWidget {
   }) {
     return showDialog(
       context: context,
-      barrierDismissible: true,
       builder: (context) => ErrorDialog(
         title: title,
         message: message,
@@ -40,15 +41,18 @@ class ErrorDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final maxWidth = Responsive.scale(context, 320, 360, 400);
+    final iconSize = Responsive.scale(context, 64, 80, 88);
+    final titleSize = Responsive.scale(context, 20, 22, 24);
+    final messageSize = Responsive.scale(context, 14, 15, 16);
+    
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(Responsive.scale(context, 20, 24, 28)),
       ),
       child: Container(
-        constraints: const BoxConstraints(
-          maxWidth: 360,
-        ),
-        padding: const EdgeInsets.all(24),
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        padding: EdgeInsets.all(Responsive.scale(context, 20, 24, 28)),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -58,52 +62,49 @@ class ErrorDialog extends StatelessWidget {
               Colors.orange[50]!,
             ],
           ),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(Responsive.scale(context, 20, 24, 28)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icono de error animado
             Container(
-              width: 80,
-              height: 80,
+              width: iconSize,
+              height: iconSize,
               decoration: BoxDecoration(
                 color: Colors.red[100],
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.red.withAlpha(76),
-                    blurRadius: 16,
+                    blurRadius: Responsive.scale(context, 12, 16, 20),
                     spreadRadius: 2,
                   ),
                 ],
               ),
               child: Icon(
                 Icons.error_outline_rounded,
-                size: 48,
+                size: iconSize * 0.6,
                 color: Colors.red[700],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: Responsive.scale(context, 16, 20, 24)),
 
-            // Título
             Text(
               title,
               style: TextStyle(
-                fontSize: 22,
+                fontSize: titleSize,
                 fontWeight: FontWeight.bold,
                 color: Colors.red[900],
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: Responsive.scale(context, 10, 12, 14)),
 
-            // Mensaje
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(Responsive.scale(context, 12, 16, 20)),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                color: context.appColors.cardBackground,
+                borderRadius: BorderRadius.circular(Responsive.scale(context, 10, 12, 14)),
                 border: Border.all(
                   color: Colors.red[200]!,
                   width: 1.5,
@@ -112,44 +113,41 @@ class ErrorDialog extends StatelessWidget {
               child: Text(
                 message,
                 style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey[800],
+                  fontSize: messageSize,
+                  color: context.appColors.textPrimary,
                   height: 1.4,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: Responsive.scale(context, 16, 20, 24)),
 
-            // Botones de acción
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Botón cerrar
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.grey[400]!, width: 2),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(color: context.appColors.border, width: 2),
+                      padding: EdgeInsets.symmetric(vertical: Responsive.scale(context, 12, 14, 16)),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(Responsive.scale(context, 10, 12, 14)),
                       ),
                     ),
                     child: Text(
                       'Cerrar',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: Responsive.scale(context, 14, 16, 18),
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[700],
+                        color: context.appColors.textPrimary,
                       ),
                     ),
                   ),
                 ),
                 
-                // Botón de acción opcional
                 if (actionText != null && onAction != null) ...[
-                  const SizedBox(width: 12),
+                  SizedBox(width: Responsive.scale(context, 10, 12, 14)),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
@@ -158,16 +156,16 @@ class ErrorDialog extends StatelessWidget {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red[600],
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: EdgeInsets.symmetric(vertical: Responsive.scale(context, 12, 14, 16)),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(Responsive.scale(context, 10, 12, 14)),
                         ),
                         elevation: 2,
                       ),
                       child: Text(
                         actionText!,
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: TextStyle(
+                          fontSize: Responsive.scale(context, 14, 16, 18),
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),

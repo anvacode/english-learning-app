@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../models/onboarding_page.dart';
-import '../../widgets/onboarding_page_widget.dart';
-import '../../utils/responsive.dart';
+
 import '../../dialogs/auth_prompt_dialog.dart';
 import '../../logic/first_time_service.dart';
+import '../../models/onboarding_page.dart';
+import '../../services/diagnostic_service.dart';
+import '../../services/tutorial_service.dart';
+import '../../theme/app_colors_extension.dart';
+import '../../utils/responsive.dart';
+import '../../widgets/onboarding_page_widget.dart';
+import '../auth/register_screen.dart';
+import '../diagnostic/diagnostic_intro_screen.dart';
 import '../home_screen.dart';
 
 /// Pantalla moderna de onboarding con diseño atractivo y animaciones.
@@ -72,34 +78,63 @@ class _ModernOnboardingScreenState extends State<ModernOnboardingScreen>
       await prefs.setBool('onboarding_completed', true);
       await FirstTimeService.setFirstTimeCompleted();
 
+      // Solicitar que el tour interactivo aparezca al llegar al HomeScreen
+      await TutorialService.requestInteractiveTutorial();
+
       if (!mounted) return;
 
-      await AuthPromptDialog.show(context, isFromOnboarding: true);
+      // Mostrar el diálogo de autenticación y capturar el resultado
+      final result = await AuthPromptDialog.show(context, isFromOnboarding: true);
 
       if (!mounted) return;
 
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const HomeScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(1.0, 0.0);
-            const end = Offset.zero;
-            const curve = Curves.easeInOutCubic;
+      // Navegar según la elección del usuario
+      if (result == 'register') {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const RegisterScreen()),
+          (route) => false,
+        );
+      } else if (result == 'google') {
+        // Verificar si el usuario completó el diagnóstico
+        final diagnosticCompleted = await DiagnosticService.isDiagnosticCompleted();
+        if (!mounted) return;
 
-            var tween = Tween(
-              begin: begin,
-              end: end,
-            ).chain(CurveTween(curve: curve));
+        if (diagnosticCompleted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            (route) => false,
+          );
+        } else {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const DiagnosticIntroScreen()),
+            (route) => false,
+          );
+        }
+      } else {
+        // 'guest' o null (diálogo cerrado sin botón) → ir a HomeScreen
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const HomeScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              const begin = Offset(1.0, 0.0);
+              const end = Offset.zero;
+              const curve = Curves.easeInOutCubic;
 
-            return SlideTransition(
-              position: animation.drive(tween),
-              child: FadeTransition(opacity: animation, child: child),
-            );
-          },
-          transitionDuration: const Duration(milliseconds: 600),
-        ),
-      );
+              var tween = Tween(
+                begin: begin,
+                end: end,
+              ).chain(CurveTween(curve: curve));
+
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: FadeTransition(opacity: animation, child: child),
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 600),
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -204,43 +239,52 @@ class _ModernOnboardingScreenState extends State<ModernOnboardingScreen>
                     // Botón Siguiente/Empezar
                     ScaleTransition(
                       scale: _buttonScaleAnimation,
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: isMobile ? 56 : 64,
-                        child: ElevatedButton(
-                          onPressed: _isAnimating ? null : _nextPage,
-                          onLongPress: () {
-                            _buttonAnimationController.forward();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: OnboardingPages
-                                .pages[_currentPage]
-                                .primaryColor,
-                            elevation: 8,
-                            shadowColor: Colors.black.withAlpha(76),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: isMobile ? 200 : 240,
+                        ),
+                        child: SizedBox(
+                          height: isMobile ? 48 : 52,
+                          child: ElevatedButton(
+                            onPressed: _isAnimating ? null : _nextPage,
+                            onLongPress: () {
+                              _buttonAnimationController.forward();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: OnboardingPages
+                                  .pages[_currentPage]
+                                  .primaryColor,
+                               elevation: 8,
+                               shadowColor: context.appColors.shadow,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
                             ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                isLastPage ? '¡Empezar!' : 'Siguiente',
-                                style: TextStyle(
-                                  fontSize: buttonFontSize,
-                                  fontWeight: FontWeight.bold,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  isLastPage ? '¡Empezar!' : 'Siguiente',
+                                  style: TextStyle(
+                                    fontSize: buttonFontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Icon(
-                                isLastPage
-                                    ? Icons.check_circle_rounded
-                                    : Icons.arrow_forward_rounded,
-                                size: buttonFontSize + 4,
-                              ),
-                            ],
+                                const SizedBox(width: 8),
+                                Icon(
+                                  isLastPage
+                                      ? Icons.check_circle_rounded
+                                      : Icons.arrow_forward_rounded,
+                                  size: buttonFontSize + 4,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

@@ -1,6 +1,7 @@
-import '../models/lesson.dart';
-import '../logic/activity_result_service.dart';
 import 'dart:async';
+
+import '../logic/activity_result_service.dart';
+import '../models/lesson.dart';
 
 /// Estados posibles del progreso de una lección.
 enum LessonProgressStatus {

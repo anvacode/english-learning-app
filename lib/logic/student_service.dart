@@ -24,14 +24,12 @@ class StudentService {
         await prefs.setString(_studentIdKey, studentId);
       }
 
-      return Student(id: studentId, level: 1, points: 0);
+      return Student(id: studentId);
     } catch (e) {
       debugPrint('Error initializing student: $e');
       // Fallback: return student with temporary ID
       return Student(
         id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
-        level: 1,
-        points: 0,
       );
     }
   }

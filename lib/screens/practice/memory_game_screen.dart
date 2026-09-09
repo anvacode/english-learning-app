@@ -1,19 +1,26 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math' show Random;
-import '../../models/activity_result.dart';
-import '../../logic/activity_result_service.dart';
-import '../../logic/star_service.dart';
-import '../../logic/practice_service.dart';
-import '../../services/audio_service.dart';
-import '../../widgets/lesson_image.dart';
+
+import 'package:flutter/material.dart';
+
 import '../../data/lessons_data.dart';
+import '../../logic/activity_result_service.dart';
+import '../../logic/practice_service.dart';
+import '../../logic/star_service.dart';
+import '../../models/activity_result.dart';
+import '../../services/audio_service.dart';
+import '../../theme/app_colors_extension.dart';
+import '../../theme/text_styles.dart';
+import '../../utils/responsive.dart';
+import '../../widgets/animated_progress_bar.dart';
+import '../../widgets/lesson_image.dart';
 
 class MemoryCard {
   final String id;
   final String imagePath;
   final Color? color;
   final String word;
+  final bool isColorCard;
   bool isFlipped;
   bool isMatched;
   
@@ -22,6 +29,7 @@ class MemoryCard {
     required this.imagePath,
     required this.word,
     this.color,
+    this.isColorCard = false,
     this.isFlipped = false,
     this.isMatched = false,
   });
@@ -84,15 +92,16 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> with SingleTickerPr
     for (var item in items) {
       final word = item.options[item.correctAnswerIndex];
       
-      // Card 1: Image
+      // Card 1: Image or Color (no text)
       _cards.add(MemoryCard(
         id: '${item.id}_img',
         imagePath: item.stimulusImageAsset ?? '',
         word: word,
         color: item.stimulusColor,
+        isColorCard: item.stimulusImageAsset == null || item.stimulusImageAsset!.isEmpty,
       ));
       
-      // Card 2: Text (same word)
+      // Card 2: Text (word on pale background)
       _cards.add(MemoryCard(
         id: '${item.id}_txt',
         imagePath: '',
@@ -306,126 +315,158 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     final progress = _matches / (_cards.length / 2);
-    
+    final hPadding = Responsive.horizontalPadding(context);
+    final vPadding = Responsive.verticalPadding(context);
+    final isDesktop = !Responsive.isMobile(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('🖼️ Memory Game'),
+        title: Text('🖼️ Memory Game', style: context.appBarTitle),
+        backgroundColor: Colors.purple,
+        foregroundColor: Colors.white,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: EdgeInsets.only(right: hPadding),
             child: Center(
-              child: Row(
-                children: [
-                  const Icon(Icons.timer, size: 20),
-                  const SizedBox(width: 4),
-                  Text(
-                    _formatTime(_elapsedSeconds),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const Icon(Icons.touch_app, size: 20),
-                  const SizedBox(width: 4),
-                  Text(
-                    '$_moves',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+              child: _buildStatsRow(context),
             ),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Progress bar
-          LinearProgressIndicator(
-            value: progress,
-            backgroundColor: Colors.grey[300],
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.purple),
-            minHeight: 8,
+          AnimatedProgressBar(
+            progress: progress,
+            color: Colors.purple,
+            label: '$_matches/${_cards.length ~/ 2}',
           ),
-          
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  const Text(
-                    '¡Encuentra los pares!',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+            child: isDesktop
+                ? _buildDesktopLayout(context, hPadding, vPadding)
+                : _buildMobileLayout(context, hPadding, vPadding),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsRow(BuildContext context) {
+    return Row(
+      children: [
+        Icon(Icons.timer, size: Responsive.scale(context, 16, 18, 20)),
+        SizedBox(width: Responsive.scale(context, 3, 4, 5)),
+        Text(
+          _formatTime(_elapsedSeconds),
+          style: TextStyle(
+            fontSize: Responsive.scale(context, 14, 15, 16),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(width: Responsive.scale(context, 10, 12, 16)),
+        Icon(Icons.touch_app, size: Responsive.scale(context, 16, 18, 20)),
+        SizedBox(width: Responsive.scale(context, 3, 4, 5)),
+        Text(
+          '$_moves',
+          style: TextStyle(
+            fontSize: Responsive.scale(context, 14, 15, 16),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileLayout(BuildContext context, double hPadding, double vPadding) {
+    final gridSpacing = Responsive.scale(context, 6, 8, 10);
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: hPadding, vertical: vPadding),
+      child: Column(
+        children: [
+          Text(
+            '¡Encuentra los pares!',
+            style: TextStyle(
+              fontSize: Responsive.scale(context, 16, 18, 20),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: Responsive.scale(context, 4, 6, 8)),
+          Text(
+            'Emparejamientos: $_matches/${_cards.length ~/ 2}',
+            style: TextStyle(
+              fontSize: Responsive.scale(context, 13, 14, 15),
+              color: Colors.purple,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: Responsive.scale(context, 8, 10, 12)),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: gridSpacing,
+                mainAxisSpacing: gridSpacing,
+                childAspectRatio: 0.85,
+              ),
+              itemCount: _cards.length,
+              itemBuilder: (context, index) => _buildCard(context, index),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopLayout(BuildContext context, double hPadding, double vPadding) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: hPadding, vertical: vPadding),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '¡Encuentra los pares!',
+                style: TextStyle(
+                  fontSize: Responsive.scale(context, 20, 22, 24),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Responsive.scale(context, 12, 14, 16),
+                  vertical: Responsive.scale(context, 6, 8, 10),
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.purple[50],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Emparejamientos: $_matches/${_cards.length ~/ 2}',
+                  style: TextStyle(
+                    fontSize: Responsive.scale(context, 15, 16, 18),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.purple,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Emparejamientos: $_matches/${_cards.length ~/ 2}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.purple,
-                      fontWeight: FontWeight.bold,
-                    ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.scale(context, 12, 16, 20)),
+          Expanded(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800, maxHeight: 350),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 6,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 0.9,
                   ),
-                  const SizedBox(height: 16),
-                  
-                  // Cards grid
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                        childAspectRatio: 0.75,
-                      ),
-                      itemCount: _cards.length,
-                      itemBuilder: (context, index) {
-                        final card = _cards[index];
-                        
-                        return GestureDetector(
-                          onTap: () => _onCardTap(index),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            decoration: BoxDecoration(
-                              color: card.isMatched
-                                  ? Colors.green[100]
-                                  : card.isFlipped
-                                      ? Colors.white
-                                      : Colors.purple,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: card.isMatched
-                                    ? Colors.green
-                                    : card.isFlipped
-                                        ? Colors.purple
-                                        : Colors.purple[700]!,
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withAlpha(26),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: card.isFlipped || card.isMatched
-                                  ? _buildCardFront(card)
-                                  : _buildCardBack(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                  itemCount: _cards.length,
+                  itemBuilder: (context, index) => _buildCard(context, index),
+                ),
               ),
             ),
           ),
@@ -433,39 +474,82 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> with SingleTickerPr
       ),
     );
   }
-  
+
+  Widget _buildCard(BuildContext context, int index) {
+    final card = _cards[index];
+    return GestureDetector(
+      onTap: () => _onCardTap(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        decoration: BoxDecoration(
+          color: card.isMatched
+              ? Colors.green[100]
+              : card.isFlipped
+                  ? context.appColors.cardBackground
+                  : Colors.purple,
+          borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
+          border: Border.all(
+            color: card.isMatched
+                ? Colors.green
+                : card.isFlipped
+                    ? Colors.purple
+                    : Colors.purple[700]!,
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: context.appColors.shadow,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(Responsive.borderRadius(context) - 2),
+          child: card.isFlipped || card.isMatched
+              ? _buildCardFront(card)
+              : _buildCardBack(),
+        ),
+      ),
+    );
+  }
+
   Widget _buildCardFront(MemoryCard card) {
     if (card.imagePath.isNotEmpty) {
-      // Image card
       return LessonImage(
         imagePath: card.imagePath,
         fallbackColor: card.color,
         width: double.infinity,
         height: double.infinity,
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
+      );
+    } else if (card.isColorCard) {
+      return Container(
+        color: card.color,
       );
     } else {
-      // Text card
       return Container(
         color: card.color,
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(Responsive.scale(context, 3, 4, 6)),
             child: Text(
               card.word,
-              style: const TextStyle(
-                fontSize: 14,
+              style: TextStyle(
+                fontSize: Responsive.scale(context, 10, 12, 14),
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),
       );
     }
   }
-  
+
   Widget _buildCardBack() {
     return Container(
       decoration: BoxDecoration(
@@ -475,11 +559,11 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> with SingleTickerPr
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Center(
+      child: Center(
         child: Icon(
           Icons.question_mark,
           color: Colors.white,
-          size: 32,
+          size: Responsive.scale(context, 20, 24, 28),
         ),
       ),
     );

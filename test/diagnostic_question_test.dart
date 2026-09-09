@@ -1,6 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:english_ai_app/models/diagnostic_question.dart';
 import 'package:english_ai_app/data/diagnostic_questions_data.dart';
+import 'package:english_ai_app/models/diagnostic_question.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('DiagnosticQuestion', () {

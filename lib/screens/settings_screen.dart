@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../logic/theme_provider.dart';
+import '../screens/lesson_history_screen.dart';
+import '../screens/profile/profile_screen.dart';
+import '../screens/purchased_items_screen.dart';
 import '../services/audio_service.dart';
-import '../services/theme_service.dart';
-import '../services/shop_service.dart';
-import '../models/shop_item.dart';
-import 'purchased_items_screen.dart';
-import 'profile/profile_screen.dart';
-import 'lesson_history_screen.dart';
+import '../theme/app_colors_extension.dart';
+import '../utils/responsive.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/responsive_container.dart';
+import '../widgets/responsive_snack_bar.dart';
 import 'help_screen.dart';
+import 'tutorial/tutorial_screen.dart';
 
 /// Pantalla de configuración básica de la aplicación.
 ///
 /// Muestra opciones de configuración y preferencias del usuario.
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final bool showNavBar;
+
+  const SettingsScreen({
+    super.key,
+    this.showNavBar = true,
+  });
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -26,7 +36,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _soundsEnabled = true;
   double _pitch = 1.0;
   double _rate = 0.5;
-  bool _isLoading = true;
   bool _notificationsEnabled = true;
   static const String _notificationsKey = 'notifications_enabled';
 
@@ -37,439 +46,523 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadNotificationSettings();
   }
 
+  // La pantalla se renderiza de inmediato con los valores por defecto y
+  // se actualiza cuando terminan de cargar las preferencias (sin spinner
+  // bloqueante).
   Future<void> _loadAudioSettings() async {
     await _audioService.initialize();
+    if (!mounted) return;
     setState(() {
       _autoSpeakEnabled = _audioService.autoSpeakEnabled;
       _soundsEnabled = _audioService.soundsEnabled;
       _pitch = _audioService.pitch;
       _rate = _audioService.rate;
-      _isLoading = false;
     });
   }
 
   Future<void> _loadNotificationSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _notificationsEnabled = prefs.getBool(_notificationsKey) ?? true;
     });
   }
 
-  Future<void> _showThemeSelector(BuildContext context) async {
-    final themeService = context.read<ThemeService>();
-    final purchasedThemes = await ShopService.getPurchasedItems();
-    final themes = purchasedThemes
-        .where((item) => item.type == ShopItemType.theme)
-        .toList();
-
-    if (!mounted) return;
-
-    await showModalBottomSheet(
-      // ignore: use_build_context_synchronously
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Seleccionar Tema',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              // Tema por defecto
-              _buildThemeOption(
-                context: context,
-                themeId: null,
-                name: 'Por defecto',
-                icon: '💜',
-                isActive: themeService.activeThemeId == null,
-                onTap: () async {
-                  await themeService.setActiveTheme(null);
-                  // ignore: use_build_context_synchronously
-                  if (mounted) Navigator.pop(context);
-                },
-              ),
-              // Temas comprados
-              ...themes.map((theme) {
-                final themeId = theme.metadata?['themeId'] as String?;
-                return _buildThemeOption(
-                  context: context,
-                  themeId: themeId,
-                  name: theme.name,
-                  icon: theme.icon,
-                  isActive: themeService.activeThemeId == themeId,
-                  onTap: () async {
-                    if (themeId != null) {
-                      await themeService.setActiveTheme(themeId);
-                    }
-                    // ignore: use_build_context_synchronously
-                    if (mounted) Navigator.pop(context);
-                  },
-                );
-              }),
-              if (themes.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Text(
-                    'Visita la tienda para comprar más temas',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildThemeOption({
-    required BuildContext context,
-    required String? themeId,
-    required String name,
-    required String icon,
-    required bool isActive,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Text(icon, style: const TextStyle(fontSize: 28)),
-      title: Text(name),
-      trailing: isActive
-          ? Icon(
-              Icons.check_circle,
-              color: Theme.of(context).colorScheme.primary,
-            )
-          : null,
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      tileColor: isActive
-          ? Theme.of(context).colorScheme.primaryContainer.withAlpha(76)
-          : null,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Configuración'), elevation: 0),
-        body: const Center(child: CircularProgressIndicator()),
+    final content = ResponsiveContainer(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWideScreen = constraints.maxWidth >= 600;
+          
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(Responsive.scale(context, 12, 16, 20)),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: isWideScreen ? 900 : double.infinity,
+                ),
+                child: isWideScreen
+                    ? _buildTwoColumnLayout(context)
+                    : _buildSingleColumnLayout(context),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    if (widget.showNavBar) {
+      return AppScaffold(
+        currentIndex: 3,
+        child: content,
       );
     }
-    return Scaffold(
-      appBar: AppBar(title: const Text('Configuración'), elevation: 0),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
+
+    return content;
+  }
+
+  Widget _buildSingleColumnLayout(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildAccountSection(context),
+        const SizedBox(height: 32),
+        _buildAppearanceSection(context),
+        const SizedBox(height: 32),
+        _buildAudioSection(context),
+        const SizedBox(height: 32),
+        _buildPersonalizationSection(context),
+        const SizedBox(height: 32),
+        _buildAppSection(context),
+        const SizedBox(height: 32),
+        _buildHelpSection(context),
+        const SizedBox(height: 32),
+        _buildResetButton(context),
+      ],
+    );
+  }
+
+  Widget _buildTwoColumnLayout(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildAccountSection(context),
+              const SizedBox(height: 32),
+              _buildAppearanceSection(context),
+              const SizedBox(height: 32),
+              _buildPersonalizationSection(context),
+              const SizedBox(height: 32),
+              _buildAppSection(context),
+            ],
+          ),
+        ),
+        SizedBox(width: Responsive.scale(context, 20, 24, 32)),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildAudioSection(context),
+              const SizedBox(height: 32),
+              _buildHelpSection(context),
+              const SizedBox(height: 32),
+              _buildResetButton(context),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAccountSection(BuildContext context) {
+    return _SettingsSection(
+      title: 'Cuenta',
+      children: [
+        _SettingsTile(
+          icon: Icons.person,
+          title: 'Perfil',
+          subtitle: 'Gestiona tu información personal',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProfileScreen(),
+              ),
+            );
+          },
+        ),
+        _SettingsTile(
+          icon: Icons.history,
+          title: 'Historial de lecciones',
+          subtitle: 'Revisa tu progreso',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LessonHistoryScreen(),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAppearanceSection(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+
+    return _SettingsSection(
+      title: 'Apariencia',
+      children: [
+        Padding(
+          padding: EdgeInsets.all(Responsive.scale(context, 14, 16, 18)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(
+                      Responsive.scale(context, 8, 9, 10),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Icons.palette_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: Responsive.scale(context, 20, 22, 24),
+                    ),
+                  ),
+                  SizedBox(width: Responsive.scale(context, 12, 14, 16)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Tema',
+                          style: TextStyle(
+                            fontSize: Responsive.scale(context, 15, 16, 17),
+                            fontWeight: FontWeight.w600,
+                            color: context.appColors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(
+                          height: Responsive.scale(context, 2, 3, 4),
+                        ),
+                        Text(
+                          'Elige cómo se ve la aplicación',
+                          style: TextStyle(
+                            fontSize: Responsive.scale(context, 13, 14, 15),
+                            color: context.appColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: Responsive.scale(context, 14, 16, 18)),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: context.appColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: context.appColors.border),
+                ),
+                child: Row(
+                  children: [
+                    _ThemeOption(
+                      mode: ThemeMode.light,
+                      icon: Icons.light_mode_rounded,
+                      label: 'Claro',
+                      selected: themeProvider.mode == ThemeMode.light,
+                      onTap: () => themeProvider.setMode(ThemeMode.light),
+                    ),
+                    _ThemeOption(
+                      mode: ThemeMode.dark,
+                      icon: Icons.dark_mode_rounded,
+                      label: 'Oscuro',
+                      selected: themeProvider.mode == ThemeMode.dark,
+                      onTap: () => themeProvider.setMode(ThemeMode.dark),
+                    ),
+                    _ThemeOption(
+                      mode: ThemeMode.system,
+                      icon: Icons.settings_suggest_rounded,
+                      label: 'Sistema',
+                      selected: themeProvider.mode == ThemeMode.system,
+                      onTap: () => themeProvider.setMode(ThemeMode.system),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAudioSection(BuildContext context) {
+    return _SettingsSection(
+      title: 'Audio',
+      children: [
+        _SettingsTile(
+          icon: Icons.record_voice_over,
+          title: 'Pronunciación automática',
+          subtitle: 'Pronuncia palabras automáticamente',
+          trailing: Switch(
+            value: _autoSpeakEnabled,
+            onChanged: (value) async {
+              setState(() {
+                _autoSpeakEnabled = value;
+              });
+              await _audioService.setAutoSpeak(value);
+            },
+          ),
+        ),
+        _SettingsTile(
+          icon: Icons.volume_up,
+          title: 'Efectos de sonido',
+          subtitle: 'Activar sonidos de la aplicación',
+          trailing: Switch(
+            value: _soundsEnabled,
+            onChanged: (value) async {
+              setState(() {
+                _soundsEnabled = value;
+              });
+              await _audioService.setSoundsEnabled(value);
+            },
+          ),
+        ),
+        _buildSliderCard(
+          context: context,
+          icon: Icons.tune,
+          title: 'Tono de voz',
+          value: _pitch,
+          min: 0.5,
+          max: 2.0,
+          divisions: 15,
+          onChanged: (value) async {
+            setState(() {
+              _pitch = value;
+            });
+            await _audioService.setPitch(value);
+          },
+        ),
+        _buildSliderCard(
+          context: context,
+          icon: Icons.speed,
+          title: 'Velocidad de habla',
+          value: _rate,
+          min: 0.0,
+          max: 1.0,
+          divisions: 10,
+          onChanged: (value) async {
+            setState(() {
+              _rate = value;
+            });
+            await _audioService.setRate(value);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSliderCard({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required double value,
+    required double min,
+    required double max,
+    required int divisions,
+    required ValueChanged<double> onChanged,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(Responsive.scale(context, 16, 18, 20)),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: context.appColors.border,
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Sección de cuenta
-          _SettingsSection(
-            title: 'Cuenta',
+          Row(
             children: [
-              _SettingsTile(
-                icon: Icons.person,
-                title: 'Perfil',
-                subtitle: 'Gestiona tu información personal',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProfileScreen(),
-                    ),
-                  );
-                },
+              Icon(
+                icon,
+                color: Theme.of(context).colorScheme.primary,
+                size: Responsive.scale(context, 22, 24, 26),
               ),
-              _SettingsTile(
-                icon: Icons.history,
-                title: 'Historial de lecciones',
-                subtitle: 'Revisa tu progreso',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LessonHistoryScreen(),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // Sección de audio
-          _SettingsSection(
-            title: 'Audio',
-            children: [
-              _SettingsTile(
-                icon: Icons.record_voice_over,
-                title: 'Pronunciación automática',
-                subtitle: 'Pronuncia palabras automáticamente',
-                trailing: Switch(
-                  value: _autoSpeakEnabled,
-                  onChanged: (value) async {
-                    setState(() {
-                      _autoSpeakEnabled = value;
-                    });
-                    await _audioService.setAutoSpeak(value);
-                  },
+              SizedBox(width: Responsive.scale(context, 10, 12, 14)),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: Responsive.scale(context, 15, 16, 17),
+                    fontWeight: FontWeight.w500,
+                    color: context.appColors.textPrimary,
+                  ),
                 ),
               ),
-              _SettingsTile(
-                icon: Icons.volume_up,
-                title: 'Efectos de sonido',
-                subtitle: 'Activar sonidos de la aplicación',
-                trailing: Switch(
-                  value: _soundsEnabled,
-                  onChanged: (value) async {
-                    setState(() {
-                      _soundsEnabled = value;
-                    });
-                    await _audioService.setSoundsEnabled(value);
-                  },
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Responsive.scale(context, 10, 12, 14),
+                  vertical: Responsive.scale(context, 4, 5, 6),
                 ),
-              ),
-              // Pitch slider
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.tune,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Tono de voz',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[800],
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          _pitch.toStringAsFixed(1),
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                    Slider(
-                      value: _pitch,
-                      min: 0.5,
-                      max: 2.0,
-                      divisions: 15,
-                      label: _pitch.toStringAsFixed(1),
-                      onChanged: (value) async {
-                        setState(() {
-                          _pitch = value;
-                        });
-                        await _audioService.setPitch(value);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              // Rate slider
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.speed,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Velocidad de habla',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[800],
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          _rate.toStringAsFixed(1),
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                    Slider(
-                      value: _rate,
-                      min: 0.0,
-                      max: 1.0,
-                      divisions: 10,
-                      label: _rate.toStringAsFixed(1),
-                      onChanged: (value) async {
-                        setState(() {
-                          _rate = value;
-                        });
-                        await _audioService.setRate(value);
-                      },
-                    ),
-                  ],
+                child: Text(
+                  value.toStringAsFixed(1),
+                  style: TextStyle(
+                    fontSize: Responsive.scale(context, 13, 14, 15),
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
             ],
           ),
-
-          const SizedBox(height: 24),
-
-          // Sección de personalización
-          _SettingsSection(
-            title: 'Personalización',
-            children: [
-              _SettingsTile(
-                icon: Icons.shopping_bag,
-                title: 'Mis Ítems',
-                subtitle: 'Gestiona tus ítems comprados',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PurchasedItemsScreen(),
-                    ),
-                  );
-                },
+          SizedBox(height: Responsive.scale(context, 12, 14, 16)),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: Responsive.scale(context, 4, 5, 6),
+              thumbShape: RoundSliderThumbShape(
+                enabledThumbRadius: Responsive.scale(context, 8, 9, 10),
               ),
-              Consumer<ThemeService>(
-                builder: (context, themeService, _) {
-                  final themeInfo = ThemeService.getThemeInfo(
-                    themeService.activeThemeId ?? 'default',
-                  );
-                  return _SettingsTile(
-                    icon: Icons.palette,
-                    title: 'Tema',
-                    subtitle: themeInfo['name'] as String? ?? 'Por defecto',
-                    onTap: () => _showThemeSelector(context),
-                  );
-                },
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // Sección de aplicación
-          _SettingsSection(
-            title: 'Aplicación',
-            children: [
-              _SettingsTile(
-                icon: Icons.notifications,
-                title: 'Notificaciones',
-                subtitle: 'Gestiona las notificaciones',
-                trailing: Switch(
-                  value: _notificationsEnabled,
-                  onChanged: (value) async {
-                    setState(() {
-                      _notificationsEnabled = value;
-                    });
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setBool(_notificationsKey, value);
-                  },
-                ),
-              ),
-              _SettingsTile(
-                icon: Icons.language,
-                title: 'Idioma',
-                subtitle: 'Español',
-                onTap: () {
-                  // TODO: Implementar selector de idioma
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Próximamente: Selector de idioma'),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // Sección de ayuda
-          _SettingsSection(
-            title: 'Ayuda',
-            children: [
-              _SettingsTile(
-                icon: Icons.help_outline,
-                title: 'Ayuda y soporte',
-                subtitle: 'Obtén ayuda sobre la aplicación',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HelpScreen()),
-                  );
-                },
-              ),
-              _SettingsTile(
-                icon: Icons.info_outline,
-                title: 'Acerca de',
-                subtitle: 'Información de la aplicación',
-                onTap: () {
-                  showAboutDialog(
-                    context: context,
-                    applicationName: 'English Learning',
-                    applicationVersion: '1.0.0',
-                    applicationIcon: const Icon(
-                      Icons.school,
-                      size: 48,
-                      color: Colors.deepPurple,
-                    ),
-                    children: const [
-                      Text('Aplicación de aprendizaje de inglés para niños.'),
-                      SizedBox(height: 8),
-                      Text(
-                        'Aprende inglés de forma divertida con lecciones interactivas.',
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // Botón de reset (para testing)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: OutlinedButton.icon(
-              onPressed: () => _showResetConfirmation(context),
-              icon: const Icon(Icons.refresh),
-              label: const Text('Restablecer datos'),
-              style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+            ),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions,
+              label: value.toStringAsFixed(1),
+              onChanged: onChanged,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPersonalizationSection(BuildContext context) {
+    return _SettingsSection(
+      title: 'Personalización',
+      children: [
+        _SettingsTile(
+          icon: Icons.shopping_bag,
+          title: 'Mis Ítems',
+          subtitle: 'Gestiona tus ítems comprados',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PurchasedItemsScreen(),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAppSection(BuildContext context) {
+    return _SettingsSection(
+      title: 'Aplicación',
+      children: [
+        _SettingsTile(
+          icon: Icons.notifications,
+          title: 'Notificaciones',
+          subtitle: 'Gestiona las notificaciones',
+          trailing: Switch(
+            value: _notificationsEnabled,
+            onChanged: (value) async {
+              setState(() {
+                _notificationsEnabled = value;
+              });
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool(_notificationsKey, value);
+            },
+          ),
+        ),
+        _SettingsTile(
+          icon: Icons.language,
+          title: 'Idioma',
+          subtitle: 'Español',
+          onTap: () {
+            ResponsiveSnackBar.showInfo(
+              context,
+              message: 'Próximamente: Selector de idioma',
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHelpSection(BuildContext context) {
+    return _SettingsSection(
+      title: 'Ayuda',
+      children: [
+        _SettingsTile(
+          icon: Icons.help_outline,
+          title: 'Ayuda y soporte',
+          subtitle: 'Obtén ayuda sobre la aplicación',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HelpScreen()),
+            );
+          },
+        ),
+        _SettingsTile(
+          icon: Icons.menu_book_rounded,
+          title: 'Ver tutorial',
+          subtitle: 'Aprende a usar la app paso a paso',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TutorialScreen(showPlayButton: false),
+              ),
+            );
+          },
+        ),
+        _SettingsTile(
+          icon: Icons.info_outline,
+          title: 'Acerca de',
+          subtitle: 'Información de la aplicación',
+          onTap: () {
+            showAboutDialog(
+              context: context,
+              applicationName: 'English Learning',
+              applicationVersion: '2.0.0',
+              applicationIcon: Icon(
+                Icons.school,
+                size: 48,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              children: const [
+                Text('Aplicación de aprendizaje de inglés para niños.'),
+                SizedBox(height: 8),
+                Text(
+                  'Aprende inglés de forma divertida con lecciones interactivas.',
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResetButton(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: Responsive.scale(context, 12, 16, 20),
+      ),
+      child: OutlinedButton.icon(
+        onPressed: () => _showResetConfirmation(context),
+        icon: const Icon(Icons.refresh),
+        label: const Text('Restablecer datos'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Theme.of(context).colorScheme.error,
+        ),
       ),
     );
   }
@@ -499,11 +592,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (confirmed == true && mounted) {
       await _resetAllData();
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Datos restablecidos')));
-      }
+      if (!context.mounted) return;
+      ResponsiveSnackBar.showSuccess(context, message: 'Datos restablecidos');
     }
   }
 
@@ -512,6 +602,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.clear();
     await _loadAudioSettings();
     _loadNotificationSettings();
+    if (mounted) {
+      await context.read<ThemeProvider>().reload();
+    }
   }
 }
 
@@ -528,25 +621,110 @@ class _SettingsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+          padding: EdgeInsets.only(
+            left: Responsive.scale(context, 16, 18, 20),
+            bottom: Responsive.scale(context, 8, 10, 12),
+          ),
           child: Text(
             title,
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
-              letterSpacing: 0.5,
+              fontSize: Responsive.scale(context, 14, 15, 16),
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.primary,
+              letterSpacing: 0.3,
             ),
           ),
         ),
         Card(
-          elevation: 1,
+          elevation: 2,
+          shadowColor: context.appColors.shadow,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(Responsive.scale(context, 12, 14, 16)),
           ),
-          child: Column(children: children),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(Responsive.scale(context, 12, 14, 16)),
+            child: Column(children: children),
+          ),
         ),
       ],
+    );
+  }
+}
+
+/// Opción seleccionable del selector de tema (claro / oscuro / sistema).
+class _ThemeOption extends StatelessWidget {
+  final ThemeMode mode;
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ThemeOption({
+    required this.mode,
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final fontSize = Responsive.scale(context, 13, 14, 15);
+    final iconSize = Responsive.scale(context, 18, 19, 20);
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.symmetric(
+            vertical: Responsive.scale(context, 10, 11, 12),
+          ),
+          decoration: BoxDecoration(
+            gradient: selected ? context.appColors.primaryGradient : null,
+            color: selected ? null : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: scheme.primary.withValues(alpha: 0.35),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ]
+                : null,
+          ),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: iconSize,
+                  color: selected
+                      ? Colors.white
+                      : context.appColors.textSecondary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    color: selected
+                        ? Colors.white
+                        : context.appColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -569,14 +747,70 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-      title: Text(title),
-      subtitle: Text(subtitle),
-      trailing:
-          trailing ?? (onTap != null ? const Icon(Icons.chevron_right) : null),
+    return InkWell(
       onTap: onTap,
-      shape: const Border(bottom: BorderSide(color: Colors.grey, width: 0.5)),
+      child: Container(
+        padding: EdgeInsets.all(Responsive.scale(context, 14, 16, 18)),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: context.appColors.border,
+              width: 0.5,
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(Responsive.scale(context, 8, 9, 10)),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: Theme.of(context).colorScheme.primary,
+                size: Responsive.scale(context, 20, 22, 24),
+              ),
+            ),
+            SizedBox(width: Responsive.scale(context, 12, 14, 16)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: Responsive.scale(context, 15, 16, 17),
+                      fontWeight: FontWeight.w600,
+                      color: context.appColors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: Responsive.scale(context, 2, 3, 4)),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: Responsive.scale(context, 13, 14, 15),
+                      color: context.appColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (trailing != null) ...[
+              SizedBox(width: Responsive.scale(context, 8, 10, 12)),
+              trailing!,
+            ] else if (onTap != null) ...[
+              SizedBox(width: Responsive.scale(context, 8, 10, 12)),
+              Icon(
+                Icons.chevron_right,
+                color: context.appColors.textTertiary,
+                size: Responsive.scale(context, 20, 22, 24),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

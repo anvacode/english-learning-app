@@ -1,5 +1,5 @@
-import 'lesson_item.dart';
 import 'lesson_exercise.dart';
+import 'lesson_item.dart';
 
 class Lesson {
   final String id;

@@ -1,9 +1,11 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../models/shop_item.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../logic/star_service.dart';
 import '../logic/user_profile_service.dart';
-import 'theme_service.dart';
+import '../models/shop_item.dart';
+import '../services/sync_service.dart';
 
 /// Servicio para manejar la tienda de estrellas.
 /// 
@@ -15,74 +17,7 @@ class ShopService {
   /// Obtiene todos los ítems disponibles en la tienda.
   static List<ShopItem> getAvailableItems() {
     return [
-      // Avatares
-      const ShopItem(
-        id: 'avatar_star',
-        name: 'Avatar Estrella',
-        description: 'Conviértete en una estrella brillante',
-        price: 50,
-        type: ShopItemType.avatar,
-        icon: '⭐',
-        metadata: {'avatarId': 8},
-      ),
-      const ShopItem(
-        id: 'avatar_champion',
-        name: 'Avatar Campeón',
-        description: 'Muestra que eres un campeón',
-        price: 80,
-        type: ShopItemType.avatar,
-        icon: '🏆',
-        metadata: {'avatarId': 9},
-      ),
-      const ShopItem(
-        id: 'avatar_superhero',
-        name: 'Avatar Superhéroe',
-        description: '¡Poderes de aprendizaje!',
-        price: 100,
-        type: ShopItemType.avatar,
-        icon: '🦸',
-        metadata: {'avatarId': 10},
-      ),
-      
-      // Temas
-      const ShopItem(
-        id: 'theme_rainbow',
-        name: 'Tema Arcoíris',
-        description: 'Colores brillantes y alegres',
-        price: 40,
-        type: ShopItemType.theme,
-        icon: '🌈',
-        metadata: {'themeId': 'rainbow'},
-      ),
-      const ShopItem(
-        id: 'theme_space',
-        name: 'Tema Espacial',
-        description: 'Viaja por el espacio mientras aprendes',
-        price: 50,
-        type: ShopItemType.theme,
-        icon: '🚀',
-        metadata: {'themeId': 'space'},
-      ),
-      const ShopItem(
-        id: 'theme_nature',
-        name: 'Tema Naturaleza',
-        description: 'Colores verdes y naturales',
-        price: 45,
-        type: ShopItemType.theme,
-        icon: '🌳',
-        metadata: {'themeId': 'nature'},
-      ),
-      
       // Efectos
-      const ShopItem(
-        id: 'effect_confetti',
-        name: 'Efecto Confeti',
-        description: 'Confeti dorado al completar lecciones',
-        price: 60,
-        type: ShopItemType.effect,
-        icon: '✨',
-        metadata: {'effectId': 'confetti'},
-      ),
       const ShopItem(
         id: 'effect_sparkles',
         name: 'Efecto Estrellitas',
@@ -133,14 +68,10 @@ class ShopService {
   /// Compra un ítem usando estrellas.
   /// 
   /// [item] es el ítem a comprar.
-  /// [themeService] es opcional, permite activar temas inmediatamente.
   /// 
   /// Lanza una excepción si el usuario no tiene suficientes estrellas
   /// o si el ítem ya fue comprado.
-  static Future<void> purchaseItem(
-    ShopItem item, {
-    ThemeService? themeService,
-  }) async {
+  static Future<void> purchaseItem(ShopItem item) async {
     // Verificar si ya está comprado
     if (await isItemPurchased(item.id)) {
       throw StateError('Este ítem ya ha sido comprado');
@@ -178,37 +109,20 @@ class ShopService {
     }
 
     // 3. Activar automáticamente según el tipo de ítem
-    await _activateItemOnPurchase(item, themeService: themeService);
+    await _activateItemOnPurchase(item);
+
+    // 4. Disparar sincronización con la nube
+    SyncService().syncUserDataDebounced();
   }
   
   /// Activa un ítem automáticamente después de comprarlo.
-  /// 
-  /// [themeService] es opcional, permite activar temas inmediatamente.
-  static Future<void> _activateItemOnPurchase(
-    ShopItem item, {
-    ThemeService? themeService,
-  }) async {
+  static Future<void> _activateItemOnPurchase(ShopItem item) async {
     switch (item.type) {
       case ShopItemType.avatar:
         // Activar avatar automáticamente
         final avatarId = item.metadata?['avatarId'] as int?;
         if (avatarId != null) {
           await UserProfileService.updateAvatar(avatarId);
-        }
-        break;
-        
-      case ShopItemType.theme:
-        // Activar tema automáticamente
-        final themeId = item.metadata?['themeId'] as String?;
-        if (themeId != null) {
-          if (themeService != null) {
-            // Aplicar tema inmediatamente usando Provider
-            await themeService.setActiveTheme(themeId);
-          } else {
-            // Fallback: guardar en SharedPreferences para próximo inicio
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setString('active_theme_id', themeId);
-          }
         }
         break;
         

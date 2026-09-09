@@ -57,7 +57,6 @@ class ShopItem {
 /// Tipos de ítems disponibles en la tienda.
 enum ShopItemType {
   avatar,      // Avatares personalizados
-  theme,       // Temas de colores
   effect,      // Efectos visuales
   content,     // Contenido extra
   powerup,     // Power-ups temporales

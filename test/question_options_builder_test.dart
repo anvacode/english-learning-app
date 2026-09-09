@@ -1,12 +1,12 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:english_ai_app/utils/question_options_builder.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('QuestionOptionsBuilder', () {
     group('buildOptionsFromPool', () {
       test('correct answer is ALWAYS included in generated options', () {
         final options = ['red', 'blue', 'green'];
-        final correctIndex = 0; // 'red' is correct
+        const correctIndex = 0; // 'red' is correct
 
         final randomized = QuestionOptionsBuilder.buildOptionsFromPool(
           allOptions: options,
@@ -18,7 +18,7 @@ void main() {
 
       test('generated options contain all items from pool', () {
         final options = ['red', 'blue', 'green'];
-        final correctIndex = 1; // 'blue' is correct
+        const correctIndex = 1; // 'blue' is correct
 
         final randomized = QuestionOptionsBuilder.buildOptionsFromPool(
           allOptions: options,
@@ -63,7 +63,7 @@ void main() {
 
       test('correct answer is preserved even for last item in pool', () {
         final options = ['a', 'b', 'c'];
-        final correctIndex = 2; // Last item 'c' is correct
+        const correctIndex = 2; // Last item 'c' is correct
 
         final randomized = QuestionOptionsBuilder.buildOptionsFromPool(
           allOptions: options,

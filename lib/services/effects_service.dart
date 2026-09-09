@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'shop_service.dart';
+
 import '../models/shop_item.dart';
+import 'shop_service.dart';
 
 /// Servicio para gestionar los efectos visuales de la aplicación.
 /// 
@@ -61,20 +62,22 @@ class EffectsService {
     await prefs.setStringList(_activeEffectsKey, activeEffects.toList());
   }
   
-  /// Verifica si el efecto confetti debe mostrarse
+  /// Verifica si el efecto confetti debe mostrarse.
+  /// Los efectos son gratuitos por defecto, siempre activos.
   static Future<bool> shouldShowConfetti() async {
     final isPurchased = await isEffectPurchased('confetti');
-    if (!isPurchased) return false;
-    
+    if (!isPurchased) return true; // gratuito por defecto
+
     final isActive = await isEffectActive('confetti');
     return isActive;
   }
-  
-  /// Verifica si el efecto sparkles debe mostrarse
+
+  /// Verifica si el efecto sparkles debe mostrarse.
+  /// Los efectos son gratuitos por defecto, siempre activos.
   static Future<bool> shouldShowSparkles() async {
     final isPurchased = await isEffectPurchased('sparkles');
-    if (!isPurchased) return false;
-    
+    if (!isPurchased) return true; // gratuito por defecto
+
     final isActive = await isEffectActive('sparkles');
     return isActive;
   }

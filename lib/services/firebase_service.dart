@@ -1,7 +1,8 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+
 import '../firebase_options.dart';
 
 class FirebaseService {
@@ -44,7 +45,7 @@ class FirebaseService {
       // Configure Firestore settings for offline persistence
       _firestore!.settings = const Settings(
         persistenceEnabled: true,
-        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+        cacheSizeBytes: 50 * 1024 * 1024, // 50 MB
       );
 
       _initialized = true;

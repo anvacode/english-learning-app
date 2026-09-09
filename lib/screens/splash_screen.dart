@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../logic/first_time_service.dart';
-import '../logic/student_service.dart';
-import '../logic/star_service.dart';
-import '../services/auth_prompt_service.dart';
+
 import '../dialogs/daily_login_reward_dialog.dart';
-import 'onboarding/modern_onboarding_screen.dart';
+import '../logic/auth_provider.dart';
+import '../logic/first_time_service.dart';
+import '../logic/star_service.dart';
+import '../logic/student_service.dart';
+import '../screens/admin_dashboard_screen.dart';
+import '../services/tutorial_service.dart';
 import 'home_screen.dart';
+import 'onboarding/modern_onboarding_screen.dart';
 
 /// Pantalla de splash que se muestra al iniciar la aplicación.
 ///
@@ -47,49 +51,63 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _initializeAndNavigate() async {
-    await AuthPromptService.incrementOpenCount();
-
     await StudentService.initializeStudent();
 
-    // Verificar si es la primera vez o si el onboarding no se completó
+    final authProvider = context.read<AuthProvider>();
+
+    // Wait for auth state to be ready (no fixed delay, use the authReady future)
+    await authProvider.authReady;
+
+    // Verificar estados
     final prefs = await SharedPreferences.getInstance();
     final isFirstTime = await FirstTimeService.isFirstTime();
     final onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
 
-    // Si no es la primera vez y completó el onboarding, procesar login diario
+    // Flujo de navegación:
+    // 1. Primera vez o onboarding no completado → Onboarding
+    // 2. Onboarding completado → Home
+
+    // Si ya completó el onboarding, procesar recompensa diaria
     if (!isFirstTime && onboardingCompleted) {
-      // Procesar login diario (otorga recompensas y actualiza racha)
-      final starsEarned = await StarService.processDailyLogin();
+      // Solo usuarios autenticados (email/Google) reciben recompensa diaria
+      if (authProvider.isAuthenticated) {
+        final starsEarned = await StarService.processDailyLogin();
+        final streakAfter = await StarService.getLoginStreak();
+        final streakBonus = streakAfter > 1 ? (streakAfter - 1) * 5 : 0;
 
-      // Obtener racha después del login
-      final streakAfter = await StarService.getLoginStreak();
-
-      // Calcular bono de racha (si la racha es > 1)
-      final streakBonus = streakAfter > 1 ? (streakAfter - 1) * 5 : 0;
-
-      // Si se ganaron estrellas, mostrar diálogo de recompensas
-      if (starsEarned > 0 && mounted) {
-        await DailyLoginRewardDialog.show(
-          context,
-          starsEarned: starsEarned,
-          loginStreak: streakAfter,
-          streakBonus: streakBonus,
-        );
+        if (starsEarned > 0 && mounted) {
+          await DailyLoginRewardDialog.show(
+            context,
+            starsEarned: starsEarned,
+            loginStreak: streakAfter,
+            streakBonus: streakBonus,
+          );
+        }
       }
     }
+
+    // Verificar si se debe mostrar el tour interactivo
+    final showInteractiveTutorial = !isFirstTime &&
+        onboardingCompleted &&
+        !(await TutorialService.wasInteractiveTutorialShown());
 
     // Esperar tiempo mínimo para mostrar splash
     await Future.delayed(const Duration(seconds: 2));
 
-    // Navegar a la pantalla correspondiente
     if (!mounted) return;
 
+    // Determinar pantalla destino
+    Widget destination;
+    if (authProvider.isAdmin) {
+      destination = const AdminDashboardScreen();
+    } else if (!isFirstTime && onboardingCompleted) {
+      destination = HomeScreen(showTutorial: showInteractiveTutorial);
+    } else {
+      destination = const ModernOnboardingScreen();
+    }
+
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => (!isFirstTime && onboardingCompleted)
-            ? const HomeScreen()
-            : const ModernOnboardingScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => destination),
     );
   }
 
@@ -104,15 +122,12 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Image.asset(
-            'assets/logo.png',
-            width: 200,
-            height: 200,
-            errorBuilder: (context, error, stackTrace) {
-              // Si el logo no existe, mostrar un placeholder
-              return Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FadeTransition(
+              opacity: _fadeAnimation,
+              child: Container(
                 width: 200,
                 height: 200,
                 decoration: BoxDecoration(
@@ -124,9 +139,15 @@ class _SplashScreenState extends State<SplashScreen>
                   size: 100,
                   color: Theme.of(context).colorScheme.onPrimary,
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+            const SizedBox(height: 32),
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
         ),
       ),
     );

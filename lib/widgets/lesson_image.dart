@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors_extension.dart';
+
 /// Widget que muestra una imagen de lección con manejo de errores.
 /// 
 /// Incluye:
@@ -85,7 +87,7 @@ class _LessonImageState extends State<LessonImage>
     return Container(
       width: widget.width,
       height: widget.height,
-      color: Colors.grey[200],
+      color: context.appColors.surfaceVariant,
       child: Center(
         child: SizedBox(
           width: 40,
@@ -106,17 +108,17 @@ class _LessonImageState extends State<LessonImage>
       width: widget.width,
       height: widget.height,
       decoration: BoxDecoration(
-        color: widget.fallbackColor ?? Colors.grey[300],
+        color: widget.fallbackColor ?? context.appColors.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: widget.fallbackColor != null 
+          color: widget.fallbackColor != null
               ? _getBorderColor(widget.fallbackColor!)
-              : Colors.grey[400]!,
+              : context.appColors.border,
           width: 3,
         ),
         boxShadow: [
           BoxShadow(
-            color: (widget.fallbackColor ?? Colors.grey).withAlpha(77),
+            color: widget.fallbackColor?.withAlpha(77) ?? context.appColors.shadow,
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -136,7 +138,7 @@ class _LessonImageState extends State<LessonImage>
               size: (widget.width != null && widget.height != null)
                   ? (widget.width! < widget.height! ? widget.width! * 0.4 : widget.height! * 0.4)
                   : 40,
-              color: Colors.grey[600],
+              color: context.appColors.textSecondary,
             ),
     );
   }

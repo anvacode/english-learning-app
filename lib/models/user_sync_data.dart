@@ -1,5 +1,5 @@
-import 'sync_metadata.dart';
 import 'student.dart';
+import 'sync_metadata.dart';
 import 'user_profile.dart';
 
 class UserSyncData {

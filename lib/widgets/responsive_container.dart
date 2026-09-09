@@ -26,6 +26,16 @@ class ResponsiveContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget content = child;
 
+    // Aplicar maxWidth si se especifica
+    if (maxWidth != null) {
+      content = Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth!),
+          child: content,
+        ),
+      );
+    }
+
     // Agregar padding horizontal responsive si está habilitado
     if (addHorizontalPadding) {
       content = Padding(
@@ -41,18 +51,6 @@ class ResponsiveContainer extends StatelessWidget {
       content = Padding(
         padding: padding!,
         child: content,
-      );
-    }
-
-    // Limitar ancho máximo en desktop
-    final maxContainerWidth = maxWidth ?? Responsive.maxContainerWidth(context);
-    
-    if (!Responsive.isMobile(context) && maxContainerWidth != double.infinity) {
-      content = Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxContainerWidth),
-          child: content,
-        ),
       );
     }
 

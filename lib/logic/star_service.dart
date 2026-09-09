@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../models/star_transaction.dart';
+import '../services/sync_service.dart';
 
 /// Servicio para manejar el sistema de estrellas.
 /// 
@@ -130,17 +131,20 @@ class StarService {
       
       // Agregar a la lista
       transactions.add(transaction);
-      
+
       // Guardar transacciones
       await _saveTransactions(transactions);
-      
+
       // Actualizar total en cache
       final currentTotal = await getTotalStars();
       final newTotal = currentTotal + finalAmount;
       await prefs.setInt(_totalStarsKey, newTotal);
-      
+
       // Notificar cambio en tiempo real
       starCountNotifier.value = newTotal;
+
+      // Disparar sincronización con la nube
+      SyncService().syncUserDataDebounced();
     });
   }
   
@@ -198,16 +202,19 @@ class StarService {
       
       // Agregar a la lista
       transactions.add(transaction);
-      
+
       // Guardar transacciones
       await _saveTransactions(transactions);
-      
+
       // Actualizar total en cache
       final newTotal = totalStars - amount;
       await prefs.setInt(_totalStarsKey, newTotal);
-      
+
       // Notificar cambio en tiempo real
       starCountNotifier.value = newTotal;
+
+      // Disparar sincronización con la nube
+      SyncService().syncUserDataDebounced();
     });
   }
 

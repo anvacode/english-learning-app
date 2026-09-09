@@ -4,6 +4,8 @@ import '../../data/lessons_data.dart';
 import '../../models/lesson_item.dart';
 import '../../services/speech_recognition_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_colors_extension.dart';
+import '../../utils/responsive.dart';
 
 /// Pantalla de práctica de pronunciación
 /// El niño practica pronunciando palabras en inglés y recibe feedback con estrellas
@@ -166,7 +168,7 @@ class _PronunciationPracticeScreenState
       children: List.generate(5, (index) {
         return Icon(
           index < rating ? Icons.star : Icons.star_border,
-          color: index < rating ? AppColors.starGold : Colors.grey,
+          color: index < rating ? AppColors.starGold : context.appColors.textTertiary,
           size: 40,
         );
       }),
@@ -214,34 +216,31 @@ class _PronunciationPracticeScreenState
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(Responsive.scale(context, 16, 24, 32)),
           child: Column(
             children: [
-              // Barra de progreso
               LinearProgressIndicator(
                 value: (_currentIndex + 1) / _practiceWords.length,
-                backgroundColor: Colors.grey[200],
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                backgroundColor: context.appColors.surfaceVariant,
+                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
               ),
-              const SizedBox(height: 32),
-
-              // Imagen de la palabra
+              SizedBox(height: Responsive.scale(context, 24, 32, 36)),
               Container(
-                width: 200,
-                height: 200,
+                width: Responsive.scale(context, 160, 200, 220),
+                height: Responsive.scale(context, 160, 200, 220),
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(20),
+                  color: context.appColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(Responsive.scale(context, 16, 20, 24)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withAlpha(20),
+                      color: context.appColors.shadow,
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(Responsive.scale(context, 16, 20, 24)),
                   child: currentWord.stimulusImageAsset != null
                       ? Image.asset(
                           currentWord.stimulusImageAsset!,
@@ -249,70 +248,55 @@ class _PronunciationPracticeScreenState
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
                               color: currentWord.stimulusColor,
-                              child: const Icon(
-                                Icons.image,
-                                size: 80,
-                                color: Colors.white,
-                              ),
+                              child: Icon(Icons.image, size: Responsive.scale(context, 60, 80, 90), color: Colors.white),
                             );
                           },
                         )
                       : Container(
                           color: currentWord.stimulusColor,
-                          child: const Icon(
-                            Icons.image,
-                            size: 80,
-                            color: Colors.white,
-                          ),
+                          child: Icon(Icons.image, size: Responsive.scale(context, 60, 80, 90), color: Colors.white),
                         ),
                 ),
               ),
-              const SizedBox(height: 32),
-
-              // Palabra objetivo
+              SizedBox(height: Responsive.scale(context, 24, 32, 36)),
               Text(
                 targetWord,
                 style: TextStyle(
-                  fontSize: 48,
+                  fontSize: Responsive.scale(context, 36, 42, 48),
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: Responsive.scale(context, 6, 8, 10)),
               Text(
                 'Pronuncia esta palabra',
-                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                style: TextStyle(fontSize: Responsive.scale(context, 14, 16, 18), color: context.appColors.textSecondary),
               ),
-              const SizedBox(height: 40),
-
-              // Resultado o botón de micrófono
+              SizedBox(height: Responsive.scale(context, 28, 40, 44)),
               if (_hasResult && _lastResult != null) ...[
-                // Mostrar resultado
                 _buildStarRating(_lastResult!.starRating),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.scale(context, 12, 16, 20)),
                 Text(
                   _lastResult!.message,
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: Responsive.scale(context, 18, 20, 22),
                     fontWeight: FontWeight.bold,
-                    color: _lastResult!.isCorrect
-                        ? Colors.green[700]
-                        : Colors.orange[700],
+                    color: _lastResult!.isCorrect ? Colors.green[700] : Colors.orange[700],
                   ),
                   textAlign: TextAlign.center,
                 ),
                 if (!_lastResult!.isCorrect) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: Responsive.scale(context, 6, 8, 10)),
                   Text(
                     'Escuchado: "${_lastResult!.recognizedText}"',
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
+                      fontSize: Responsive.scale(context, 14, 16, 18),
+                      color: context.appColors.textSecondary,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
                 ],
-                const SizedBox(height: 32),
+                SizedBox(height: Responsive.scale(context, 24, 32, 36)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -323,46 +307,42 @@ class _PronunciationPracticeScreenState
                         label: const Text('Reintentar'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: Responsive.scale(context, 20, 24, 28),
+                            vertical: Responsive.scale(context, 10, 12, 14),
                           ),
                         ),
                       ),
-                    if (!_lastResult!.isCorrect) const SizedBox(width: 16),
+                    if (!_lastResult!.isCorrect) SizedBox(width: Responsive.scale(context, 12, 16, 20)),
                     ElevatedButton.icon(
                       onPressed: _nextWord,
                       icon: const Icon(Icons.arrow_forward),
                       label: Text(
-                        _currentIndex < _practiceWords.length - 1
-                            ? 'Siguiente'
-                            : 'Finalizar',
+                        _currentIndex < _practiceWords.length - 1 ? 'Siguiente' : 'Finalizar',
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Responsive.scale(context, 20, 24, 28),
+                          vertical: Responsive.scale(context, 10, 12, 14),
                         ),
                       ),
                     ),
                   ],
                 ),
               ] else ...[
-                // Botón de micrófono
                 GestureDetector(
                   onTap: _isListening ? null : _startListening,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    width: 120,
-                    height: 120,
+                    width: Responsive.scale(context, 100, 120, 140),
+                    height: Responsive.scale(context, 100, 120, 140),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _isListening ? Colors.red : AppColors.primary,
                       boxShadow: [
                         BoxShadow(
-                          color: (_isListening ? Colors.red : AppColors.primary)
-                              .withAlpha(100),
+                          color: (_isListening ? Colors.red : AppColors.primary).withAlpha(100),
                           blurRadius: _isListening ? 30 : 15,
                           spreadRadius: _isListening ? 10 : 5,
                         ),
@@ -370,17 +350,17 @@ class _PronunciationPracticeScreenState
                     ),
                     child: Icon(
                       _isListening ? Icons.mic : Icons.mic_none,
-                      size: 60,
+                      size: Responsive.scale(context, 48, 60, 72),
                       color: Colors.white,
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: Responsive.scale(context, 16, 24, 28)),
                 Text(
                   _statusMessage,
                   style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey[700],
+                    fontSize: Responsive.scale(context, 16, 18, 20),
+                    color: context.appColors.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.center,

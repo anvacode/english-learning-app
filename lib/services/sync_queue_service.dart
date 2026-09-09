@@ -1,12 +1,14 @@
 import 'dart:async';
-import 'package:connectivity_plus/connectivity_plus.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
-import '../models/sync_operation.dart';
-import '../models/sync_metadata.dart';
+
 import '../models/sync_conflict.dart';
-import 'local_storage_service.dart';
+import '../models/sync_metadata.dart';
+import '../models/sync_operation.dart';
+import 'connectivity_service.dart';
 import 'firebase_service.dart';
+import 'local_storage_service.dart';
 
 class SyncQueueService {
   static final SyncQueueService _instance = SyncQueueService._internal();
@@ -22,44 +24,25 @@ class SyncQueueService {
 
   final LocalStorageService _localStorage = LocalStorageService();
   final FirebaseService _firebaseService = FirebaseService();
-  final Connectivity _connectivity = Connectivity();
+  final ConnectivityService _connectivityService = ConnectivityService();
 
   final StreamController<QueueSyncStatus> _syncStatusController =
       StreamController<QueueSyncStatus>.broadcast();
 
-  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
   Timer? _syncTimer;
-  bool _isOnline = true;
   bool _isProcessing = false;
 
   Stream<QueueSyncStatus> get syncStatus => _syncStatusController.stream;
 
   void _initialize() {
-    // Monitor connectivity changes
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
-      ConnectivityResult result,
-    ) {
-      final wasOnline = _isOnline;
-      _isOnline = result != ConnectivityResult.none;
-
-      if (!wasOnline && _isOnline) {
-        // Just came back online, trigger sync
-        _startPeriodicSync();
-      } else if (wasOnline && !_isOnline) {
-        // Went offline, stop sync
-        _stopPeriodicSync();
-      }
-    });
-
-    // Start periodic sync if online
+    // Start periodic sync if online (using ConnectivityService as source of truth)
     _checkConnectivityAndStartSync();
   }
 
   Future<void> _checkConnectivityAndStartSync() async {
-    final connectivityResult = await _connectivity.checkConnectivity();
-    _isOnline = connectivityResult != ConnectivityResult.none;
+    final isOnline = await _connectivityService.checkConnection();
 
-    if (_isOnline) {
+    if (isOnline) {
       _startPeriodicSync();
     }
   }
@@ -70,11 +53,6 @@ class SyncQueueService {
     _syncTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       processSyncQueue();
     });
-  }
-
-  void _stopPeriodicSync() {
-    _syncTimer?.cancel();
-    _syncTimer = null;
   }
 
   // Add operation to sync queue
@@ -107,14 +85,14 @@ class SyncQueueService {
     await _localStorage.saveSyncOperation(operation);
 
     // If online, try to process immediately
-    if (_isOnline && !_isProcessing) {
+    if (_connectivityService.isOnline && !_isProcessing) {
       processSyncQueue();
     }
   }
 
   // Process the sync queue
   Future<void> processSyncQueue({String? userId}) async {
-    if (_isProcessing || !_isOnline) return;
+    if (_isProcessing || !_connectivityService.isOnline) return;
 
     _isProcessing = true;
     _syncStatusController.add(QueueSyncStatus.processing);
@@ -300,7 +278,7 @@ class SyncQueueService {
 
   // Manual sync trigger
   Future<void> triggerManualSync(String userId) async {
-    if (!_isOnline) {
+    if (!_connectivityService.isOnline) {
       throw Exception('No internet connection');
     }
 
@@ -315,13 +293,12 @@ class SyncQueueService {
     return SyncStatistics(
       pendingOperations: operations.length,
       unresolvedConflicts: conflicts.length,
-      isOnline: _isOnline,
+      isOnline: _connectivityService.isOnline,
       lastSyncAttempt: DateTime.now(), // This should be tracked properly
     );
   }
 
   void dispose() {
-    _connectivitySubscription?.cancel();
     _syncTimer?.cancel();
     _syncStatusController.close();
   }

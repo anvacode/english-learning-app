@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
-import '../../logic/user_profile_service.dart';
+
+import '../../data/lessons_data.dart';
+import '../../dialogs/edit_nickname_dialog.dart';
 import '../../logic/badge_service.dart';
 import '../../logic/mastery_evaluator.dart';
 import '../../logic/star_service.dart';
-import '../../data/lessons_data.dart';
-import '../../models/user_profile.dart';
+import '../../logic/user_profile_service.dart';
 import '../../models/badge.dart' as achievement;
+import '../../models/user_profile.dart';
+import '../../theme/app_colors_extension.dart';
+import '../../theme/text_styles.dart';
+import '../../utils/responsive.dart';
+import '../../widgets/app_scaffold.dart';
+import '../../widgets/auth_status_widget.dart';
 import '../../widgets/avatar_widget.dart';
 import '../../widgets/star_display.dart';
-import '../../widgets/auth_status_widget.dart';
-import '../../dialogs/edit_nickname_dialog.dart';
-import '../../utils/responsive.dart';
-import '../../widgets/responsive_container.dart';
-import '../../theme/text_styles.dart';
 import 'avatar_selection_screen.dart';
 
 /// Pantalla de perfil del usuario.
@@ -72,147 +74,226 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'My Profile',
-          style: context.headline2,
+    return AppScaffold(
+      currentIndex: -1,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          horizontal: context.horizontalPadding,
+          vertical: Responsive.scale(context, 16, 20, 24),
         ),
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: ResponsiveContainer(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(context.horizontalPadding),
-          child: Column(
+        child: Column(
           children: [
-            // Auth Status Widget
-            const AuthStatusWidget(),
-            const SizedBox(height: 24),
-            
-            // Avatar Section
-            FutureBuilder<UserProfile>(
-              future: _profileFuture,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const AvatarWidget(avatarId: 0, size: 100);
-                }
+            SizedBox(height: Responsive.scale(context, 12, 16, 20)),
+            Text(
+              'Perfil',
+              style: context.headline2,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: Responsive.scale(context, 16, 20, 24)),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: Responsive.builder(
+                context: context,
+                mobile: _buildMobileLayout(),
+                tablet: _buildTabletLayout(),
+                desktop: _buildDesktopLayout(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-                final profile = snapshot.data!;
-                return Column(
-                  children: [
-                    // Avatar tappable
-                    GestureDetector(
-                      onTap: () => _editAvatar(profile),
-                      child: AvatarWidget(
-                        avatarId: profile.avatarId,
-                        size: context.isMobile ? 100 : (context.isTablet ? 120 : 140),
+  Widget _buildMobileLayout() {
+    return Column(
+      children: [
+        const AuthStatusWidget(),
+        SizedBox(height: Responsive.scale(context, 20, 24, 28)),
+        _buildProfileHeader(),
+        SizedBox(height: Responsive.scale(context, 24, 28, 32)),
+        _buildStarsSection(),
+        SizedBox(height: Responsive.scale(context, 20, 24, 28)),
+        _buildProgressSection(),
+        SizedBox(height: Responsive.scale(context, 20, 24, 28)),
+        _buildBadgesPreview(),
+      ],
+    );
+  }
+
+  Widget _buildTabletLayout() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final spacing = Responsive.scale(context, 16, 20, 20);
+        final rightColumnWidth = (constraints.maxWidth - 250 - spacing).clamp(0.0, double.infinity);
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 250,
+              child: Column(
+                children: [
+                  _buildProfileHeader(),
+                  SizedBox(height: Responsive.scale(context, 16, 20, 20)),
+                  const AuthStatusWidget(),
+                ],
+              ),
+            ),
+            SizedBox(width: spacing),
+            SizedBox(
+              width: rightColumnWidth,
+              child: Column(
+                children: [
+                  _buildStarsSection(),
+                  SizedBox(height: Responsive.scale(context, 16, 20, 20)),
+                  _buildProgressSection(),
+                  SizedBox(height: Responsive.scale(context, 16, 20, 20)),
+                  _buildBadgesPreview(),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDesktopLayout() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 250,
+          child: Column(
+            children: [
+              _buildProfileHeader(),
+              SizedBox(height: Responsive.scale(context, 16, 20, 20)),
+              const AuthStatusWidget(),
+            ],
+          ),
+        ),
+        SizedBox(width: Responsive.scale(context, 16, 20, 20)),
+        Expanded(
+          child: Column(
+            children: [
+              _buildStarsSection(),
+              SizedBox(height: Responsive.scale(context, 16, 20, 20)),
+              _buildProgressSection(),
+            ],
+          ),
+        ),
+        SizedBox(width: Responsive.scale(context, 16, 20, 20)),
+        SizedBox(
+          width: 280,
+          child: _buildBadgesPreview(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfileHeader() {
+    return FutureBuilder<UserProfile>(
+      future: _profileFuture,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const AvatarWidget(avatarId: 0, size: 100);
+        }
+
+        final profile = snapshot.data!;
+        return Column(
+          children: [
+            GestureDetector(
+              onTap: () => _editAvatar(profile),
+              child: AvatarWidget(
+                avatarId: profile.avatarId,
+                size: context.isMobile ? 100 : (context.isTablet ? 120 : 140),
+              ),
+            ),
+            SizedBox(height: Responsive.scale(context, 12, 16, 20)),
+            GestureDetector(
+              onTap: () => _editNickname(profile),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      profile.nickname,
+                      style: TextStyle(
+                        fontSize: context.isMobile ? 24 : (context.isTablet ? 28 : 32),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 16),
-                    // Nickname with edit icon (tappable)
-                    GestureDetector(
-                      onTap: () => _editNickname(profile),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            profile.nickname,
-                            style: TextStyle(
-                              fontSize: context.isMobile ? 24 : (context.isTablet ? 28 : 32),
-                              fontWeight: FontWeight.bold,
-                              color: Colors.deepPurple,
-                            ),
+                  ),
+                  SizedBox(width: Responsive.scale(context, 6, 8, 8)),
+                  Icon(
+                    Icons.edit,
+                    size: Responsive.scale(context, 18, 20, 20),
+                    color: context.appColors.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+            if (_saveMessage != null) ...[
+              const SizedBox(height: 12),
+              AnimatedOpacity(
+                opacity: _showSuccess ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 300),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _showSuccess
+                        ? Colors.green[100]
+                        : Colors.orange[100],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_isSaving)
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
                           ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.edit,
-                            size: 20,
-                            color: Colors.grey[600],
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Save status message
-                    if (_saveMessage != null) ...[
-                      const SizedBox(height: 12),
-                      AnimatedOpacity(
-                        opacity: _showSuccess ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 300),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _showSuccess
-                                ? Colors.green[100]
-                                : Colors.orange[100],
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (_isSaving)
-                                const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              else if (_showSuccess)
-                                const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 16,
-                                )
-                              else
-                                const Icon(
-                                  Icons.error,
-                                  color: Colors.orange,
-                                  size: 16,
-                                ),
-                              const SizedBox(width: 8),
-                              Text(
-                                _saveMessage!,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: _showSuccess
-                                      ? Colors.green[900]
-                                      : Colors.orange[900],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
+                        )
+                      else if (_showSuccess)
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 16,
+                        )
+                      else
+                        const Icon(
+                          Icons.error,
+                          color: Colors.orange,
+                          size: 16,
+                        ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _saveMessage!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: _showSuccess
+                              ? Colors.green[900]
+                              : Colors.orange[900],
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
-                  ],
-                );
-              },
-            ),
-
-            const SizedBox(height: 32),
-
-            // Stars Section
-            _buildStarsSection(),
-
-            const SizedBox(height: 32),
-
-            // Progress Statistics Section
-            _buildProgressSection(),
-
-            const SizedBox(height: 32),
-
-            // Badges Preview Section
-            _buildBadgesPreview(),
+                  ),
+                ),
+              ),
+            ],
           ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -220,10 +301,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(Responsive.scale(context, 16, 20, 24)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -233,14 +314,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(
                   'Estrellas',
                   style: TextStyle(
-                    fontSize: context.isMobile ? 20 : (context.isTablet ? 22 : 24),
+                    fontSize: Responsive.scale(context, 20, 22, 24),
                     fontWeight: FontWeight.bold,
                     color: Colors.deepPurple,
                   ),
                 ),
                 StarDisplay(
-                  iconSize: context.isMobile ? 28 : 32,
-                  fontSize: context.isMobile ? 24 : 26,
+                  iconSize: Responsive.scale(context, 28, 30, 32),
+                  fontSize: Responsive.scale(context, 24, 25, 26),
                   iconColor: Colors.amber[700],
                 ),
               ],
@@ -259,17 +340,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Total de estrellas:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                              ),
-                            ),
+                             Text(
+                               'Total de estrellas:',
+                               style: TextStyle(
+                                 fontSize: Responsive.scale(context, 16, 17, 18),
+                                 color: context.appColors.textSecondary,
+                               ),
+                             ),
                             Text(
                               '$totalStars ⭐',
-                              style: const TextStyle(
-                                fontSize: 18,
+                              style: TextStyle(
+                                fontSize: Responsive.scale(context, 18, 19, 20),
                                 fontWeight: FontWeight.bold,
                                 color: Colors.deepPurple,
                               ),
@@ -280,17 +361,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Ganadas hoy:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                              ),
-                            ),
+                             Text(
+                               'Ganadas hoy:',
+                               style: TextStyle(
+                                 fontSize: Responsive.scale(context, 16, 17, 18),
+                                 color: context.appColors.textSecondary,
+                               ),
+                             ),
                             Text(
                               '$todayStars ⭐',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: Responsive.scale(context, 18, 19, 20),
                                 fontWeight: FontWeight.bold,
                                 color: Colors.green[700],
                               ),
@@ -313,17 +394,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(Responsive.scale(context, 16, 20, 24)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Progreso',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: Responsive.scale(context, 20, 22, 24),
                 fontWeight: FontWeight.bold,
                 color: Colors.deepPurple,
               ),
@@ -337,18 +418,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 return Column(
                   children: [
-                    LinearProgressIndicator(
-                      value: progress,
-                      backgroundColor: Colors.grey[300],
+                     LinearProgressIndicator(
+                       value: progress,
+                       backgroundColor: context.appColors.surfaceVariant,
                       color: Colors.deepPurple,
-                      minHeight: 12,
-                      borderRadius: BorderRadius.circular(6),
+                      minHeight: Responsive.scale(context, 10, 12, 14),
+                      borderRadius: BorderRadius.circular(Responsive.scale(context, 4, 6, 8)),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       '$percentage% completado',
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style: TextStyle(
+                        fontSize: Responsive.scale(context, 16, 18, 20),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -366,17 +447,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(Responsive.scale(context, 16, 20, 24)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Badges',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: Responsive.scale(context, 20, 22, 24),
                 fontWeight: FontWeight.bold,
                 color: Colors.deepPurple,
               ),
@@ -399,17 +480,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 if (unlockedBadges.isEmpty) {
                   return Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text(
-                      'Completa lecciones para desbloquear badges',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
+                    padding: EdgeInsets.all(Responsive.scale(context, 12, 16, 20)),
+                     decoration: BoxDecoration(
+                       color: context.appColors.surfaceVariant,
+                       borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
+                     ),
+                     child: Text(
+                       'Completa lecciones para desbloquear badges',
+                       style: TextStyle(
+                         fontSize: Responsive.scale(context, 14, 16, 18),
+                         color: context.appColors.textSecondary,
+                       ),
                       textAlign: TextAlign.center,
                     ),
                   );
@@ -420,11 +501,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   runSpacing: 12,
                   children: unlockedBadges.take(6).map((badge) {
                     return Container(
-                      width: 60,
-                      height: 60,
+                      width: Responsive.scale(context, 50, 60, 70),
+                      height: Responsive.scale(context, 50, 60, 70),
                       decoration: BoxDecoration(
                         color: Colors.amber[100],
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(Responsive.scale(context, 10, 12, 14)),
                         border: Border.all(
                           color: Colors.amber[400]!,
                           width: 2,
@@ -433,7 +514,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Center(
                         child: Text(
                           badge.icon,
-                          style: const TextStyle(fontSize: 32),
+                          style: TextStyle(fontSize: Responsive.scale(context, 28, 32, 36)),
                         ),
                       ),
                     );

@@ -1,11 +1,17 @@
-import 'package:flutter/material.dart';
 import 'dart:math' show Random;
-import '../models/matching_item.dart';
-import '../models/activity_result.dart';
+
+import 'package:flutter/material.dart';
+
 import '../logic/activity_result_service.dart';
-import '../widgets/lesson_image.dart';
-import '../widgets/speaker_button.dart';
+import '../models/activity_result.dart';
+import '../models/matching_item.dart';
 import '../services/audio_service.dart';
+import '../theme/app_colors_extension.dart';
+import '../theme/text_styles.dart';
+import '../utils/responsive.dart';
+import '../widgets/lesson_image.dart';
+import '../widgets/responsive_container.dart';
+import '../widgets/speaker_button.dart';
 
 class MatchingExerciseScreen extends StatefulWidget {
   final String lessonId;
@@ -180,206 +186,164 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hPadding = Responsive.scale(context, 12, 16, 20);
+    final vPadding = Responsive.scale(context, 10, 14, 18);
+
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: SafeArea(
-        child: Column(
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Progress indicator - más compacto
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                12,
-                12,
-                12,
-                8,
-              ), // Reduced padding
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Emparejar palabras con imágenes',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: 15,
-                    ), // Smaller text
-                  ),
-                  const SizedBox(height: 6), // Reduced spacing
-                  LinearProgressIndicator(
-                    value:
-                        widget.progressOffset +
-                        (_matchedIds.length / widget.items.length) *
-                            widget.progressScale,
-                    backgroundColor: Colors.grey[300],
-                    color: Colors.deepPurple,
-                    minHeight: 6, // Thinner bar
-                  ),
-                  const SizedBox(height: 3), // Reduced spacing
-                  Text(
-                    '${_matchedIds.length} / ${widget.items.length} parejas',
-                    style: TextStyle(
-                      fontSize: 11, // Smaller text
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
+            Text(
+              widget.title,
+              style: TextStyle(
+                fontSize: Responsive.scale(context, 16, 18, 20),
+                fontWeight: FontWeight.bold,
               ),
             ),
-
-            // Images and words layout
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                ), // Reduced padding
-                child: Row(
+            Text(
+              'Emparejar palabras con imágenes',
+              style: TextStyle(
+                fontSize: Responsive.scale(context, 11, 12, 13),
+                color: Colors.white70,
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: ResponsiveContainer(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(hPadding, vPadding, hPadding, vPadding * 0.6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Images column
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: widget.items
-                              .map((item) => _buildImageButton(item))
-                              .toList(),
+                    LinearProgressIndicator(
+                      value:
+                          widget.progressOffset +
+                          (_matchedIds.length / widget.items.length) *
+                              widget.progressScale,
+                      backgroundColor: context.appColors.surfaceVariant,
+                      color: Colors.deepPurple,
+                      minHeight: Responsive.scale(context, 6, 8, 10),
+                    ),
+                    SizedBox(height: Responsive.scale(context, 6, 8, 10)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${_matchedIds.length} / ${widget.items.length} parejas',
+                          style: TextStyle(
+                            fontSize: Responsive.scale(context, 13, 14, 15),
+                            fontWeight: FontWeight.w600,
+                            color: context.appColors.textPrimary,
+                          ),
+                        ),
+                        if (_matchedIds.length == widget.items.length)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: Responsive.scale(context, 10, 12, 14),
+                              vertical: Responsive.scale(context, 4, 5, 6),
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green[100],
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              '¡Completado!',
+                              style: TextStyle(
+                                fontSize: Responsive.scale(context, 12, 13, 14),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green[800],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final width = constraints.maxWidth;
+                    if (width < 600) {
+                      return _buildMobileLayout(context, hPadding, vPadding);
+                    } else {
+                      return _buildTabletDesktopLayout(context, hPadding, vPadding);
+                    }
+                  },
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(hPadding, vPadding * 0.6, hPadding, vPadding),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_feedbackMessage != null)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: Responsive.scale(context, 8, 10, 12)),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: Responsive.scale(context, 16, 20, 24),
+                            vertical: Responsive.scale(context, 8, 10, 12),
+                          ),
+                          decoration: BoxDecoration(
+                            color: _lastCorrect! ? Colors.green[50] : Colors.red[50],
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _lastCorrect! ? Colors.green[200]! : Colors.red[200]!,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _lastCorrect! ? Icons.check_circle : Icons.cancel,
+                                color: _lastCorrect! ? Colors.green[700] : Colors.red[700],
+                                size: Responsive.scale(context, 18, 20, 22),
+                              ),
+                              SizedBox(width: Responsive.scale(context, 8, 10, 12)),
+                              Text(
+                                _feedbackMessage!,
+                                style: TextStyle(
+                                  fontSize: Responsive.scale(context, 14, 15, 16),
+                                  fontWeight: FontWeight.bold,
+                                  color: _lastCorrect! ? Colors.green[700] : Colors.red[700],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12), // Reduced spacing
-                    // Words column (shuffled)
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: _shuffledWords
-                              .map((word) => _buildWordButton(word))
-                              .toList(),
+                    SizedBox(
+                      width: double.infinity,
+                      height: Responsive.buttonHeight(context) * 0.9,
+                      child: ElevatedButton(
+                        onPressed:
+                            (_selectedImageId != null && _selectedWord != null)
+                            ? _attemptMatch
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple,
+                          disabledBackgroundColor: context.appColors.surfaceVariant,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
+                          ),
+                          elevation: (_selectedImageId != null && _selectedWord != null) ? 4 : 0,
+                        ),
+                        child: Text(
+                          'Emparejar',
+                          style: context.buttonText,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-
-            // Feedback and action button - más compacto
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                12,
-                8,
-                12,
-                12,
-              ), // Reduced padding
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_feedbackMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 8.0,
-                      ), // Reduced padding
-                      child: Text(
-                        _feedbackMessage!,
-                        style: TextStyle(
-                          fontSize: 14, // Smaller text
-                          fontWeight: FontWeight.bold,
-                          color: _lastCorrect!
-                              ? Colors.green[700]
-                              : Colors.red[700],
-                        ),
-                      ),
-                    ),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 44, // Reduced height
-                    child: ElevatedButton(
-                      onPressed:
-                          (_selectedImageId != null && _selectedWord != null)
-                          ? _attemptMatch
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
-                        disabledBackgroundColor: Colors.grey[300],
-                      ),
-                      child: const Text(
-                        'Emparejar',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageButton(MatchingItem item) {
-    final isMatched = _matchedIds.contains(item.id);
-    final isSelected = _selectedImageId == item.id;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 768;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0), // Reduced padding
-      child: GestureDetector(
-        onTap: isMatched ? null : () => _selectImage(item.id),
-        child: Container(
-          width: double.infinity,
-          height: isMobile ? 90 : 85, // Más bajo en web
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: isSelected ? Colors.deepPurple : Colors.grey[300]!,
-              width: isSelected ? 3 : 1,
-            ),
-            borderRadius: BorderRadius.circular(8),
-            color: isMatched ? Colors.green[50] : Colors.white,
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.deepPurple.withAlpha(76),
-                      blurRadius: 8,
-                    ),
-                  ]
-                : null,
-          ),
-          child: Stack(
-            children: [
-              // Image con fondo para contenedor
-              Container(
-                color: Colors.grey[50],
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(7),
-                  child: LessonImage(
-                    imagePath: item.imagePath,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.contain, // Mostrar imagen completa sin recortar
-                  ),
-                ),
-              ),
-              // Matched checkmark - más compacto
-              if (isMatched)
-                Center(
-                  child: Container(
-                    width: 40, // Reduced size
-                    height: 40, // Reduced size
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        '✓',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 26, // Smaller text
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
             ],
           ),
         ),
@@ -387,7 +351,249 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
     );
   }
 
-  Widget _buildWordButton(String word) {
+  Widget _buildMobileLayout(BuildContext context, double hPadding, double vPadding) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: hPadding),
+      child: Column(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(bottom: Responsive.scale(context, 8, 10, 12)),
+                  child: Text(
+                    'Imágenes',
+                    style: TextStyle(
+                      fontSize: Responsive.scale(context, 13, 14, 15),
+                      fontWeight: FontWeight.w600,
+                      color: context.appColors.textSecondary,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: widget.items.length <= 4 ? 2 : 3,
+                      crossAxisSpacing: Responsive.scale(context, 8, 10, 12),
+                      mainAxisSpacing: Responsive.scale(context, 8, 10, 12),
+                    ),
+                    itemCount: widget.items.length,
+                    itemBuilder: (context, index) {
+                      final item = widget.items[index];
+                      return _buildImageCard(item);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: Responsive.scale(context, 12, 16, 20)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(bottom: Responsive.scale(context, 8, 10, 12)),
+                  child: Text(
+                    'Palabras',
+                    style: TextStyle(
+                      fontSize: Responsive.scale(context, 13, 14, 15),
+                      fontWeight: FontWeight.w600,
+                      color: context.appColors.textSecondary,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: Responsive.scale(context, 8, 10, 12),
+                      mainAxisSpacing: Responsive.scale(context, 8, 10, 12),
+                    ),
+                    itemCount: _shuffledWords.length,
+                    itemBuilder: (context, index) {
+                      final word = _shuffledWords[index];
+                      return _buildWordCard(word);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabletDesktopLayout(BuildContext context, double hPadding, double vPadding) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: hPadding),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(bottom: Responsive.scale(context, 10, 12, 14)),
+                  child: Text(
+                    'Imágenes',
+                    style: TextStyle(
+                      fontSize: Responsive.scale(context, 14, 15, 16),
+                      fontWeight: FontWeight.w600,
+                      color: context.appColors.textSecondary,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: widget.items
+                          .map((item) => _buildImageCard(item))
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: Responsive.scale(context, 16, 20, 24)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(bottom: Responsive.scale(context, 10, 12, 14)),
+                  child: Text(
+                    'Palabras',
+                    style: TextStyle(
+                      fontSize: Responsive.scale(context, 14, 15, 16),
+                      fontWeight: FontWeight.w600,
+                      color: context.appColors.textSecondary,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: _shuffledWords
+                          .map((word) => _buildWordCard(word))
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageCard(MatchingItem item) {
+    final isMatched = _matchedIds.contains(item.id);
+    final isSelected = _selectedImageId == item.id;
+
+    return AnimatedScale(
+      scale: isMatched ? 0.95 : 1.0,
+      duration: const Duration(milliseconds: 300),
+      child: AnimatedOpacity(
+        opacity: isMatched ? 0.6 : 1.0,
+        duration: const Duration(milliseconds: 300),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: Responsive.scale(context, 4, 5, 6)),
+          child: GestureDetector(
+            onTap: isMatched ? null : () => _selectImage(item.id),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: double.infinity,
+              height: Responsive.scale(context, 85, 90, 95),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: isSelected ? Colors.deepPurple : context.appColors.border,
+                  width: isSelected ? 3 : 1.5,
+                ),
+                borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
+                color: isMatched ? Colors.green[50] : context.appColors.cardBackground,
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: Colors.deepPurple.withAlpha(76),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : [
+                        BoxShadow(
+                          color: context.appColors.shadow,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+              ),
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(Responsive.borderRadius(context) - 2),
+                    child: LessonImage(
+                      imagePath: item.imagePath,
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                  ),
+                  if (isMatched)
+                    Center(
+                      child: Container(
+                        width: Responsive.scale(context, 40, 44, 48),
+                        height: Responsive.scale(context, 40, 44, 48),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.green.withAlpha(100),
+                              blurRadius: 8,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.check_rounded,
+                            color: Colors.white,
+                            size: Responsive.scale(context, 24, 28, 32),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (isSelected && !isMatched)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.deepPurple,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.touch_app,
+                          color: Colors.white,
+                          size: Responsive.scale(context, 16, 18, 20),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWordCard(String word) {
     final isSelected = _selectedWord == word;
     final isUsedInMatch = _matchedIds.any(
       (id) =>
@@ -396,38 +602,60 @@ class _MatchingExerciseScreenState extends State<MatchingExerciseScreen> {
               .correctWord ==
           word,
     );
-    final buttonHeight = 50.0;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: SizedBox(
-        width: double.infinity,
-        height: buttonHeight, // Más bajo en web
-        child: ElevatedButton(
-          onPressed: isUsedInMatch ? null : () => _selectWord(word),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isSelected ? Colors.deepPurple : Colors.grey[200],
-            disabledBackgroundColor: Colors.green[100],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                word,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : Colors.black,
-                ),
+    return AnimatedScale(
+      scale: isUsedInMatch ? 0.95 : 1.0,
+      duration: const Duration(milliseconds: 300),
+      child: AnimatedOpacity(
+        opacity: isUsedInMatch ? 0.6 : 1.0,
+        duration: const Duration(milliseconds: 300),
+        child: SizedBox(
+          width: double.infinity,
+          height: Responsive.scale(context, 52, 56, 60),
+          child: ElevatedButton(
+            onPressed: isUsedInMatch ? null : () => _selectWord(word),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isSelected ? Colors.deepPurple : context.appColors.cardBackground,
+              disabledBackgroundColor: Colors.green[100],
+              elevation: isSelected ? 4 : 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
+                side: isSelected
+                    ? BorderSide(color: Colors.deepPurple.shade700, width: 2)
+                    : BorderSide(color: context.appColors.border, width: 1.5),
               ),
-              if (!isUsedInMatch)
-                SpeakerButton(
-                  text: word,
-                  iconSize: 18,
-                  buttonSize: 32,
-                  iconColor: isSelected ? Colors.white : Colors.deepPurple,
+              padding: EdgeInsets.symmetric(
+                horizontal: Responsive.scale(context, 12, 16, 20),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (isUsedInMatch)
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.green[700],
+                    size: Responsive.scale(context, 18, 20, 22),
+                  ),
+                Expanded(
+                  child: Text(
+                    word,
+                    style: TextStyle(
+                      fontSize: Responsive.scale(context, 14, 15, 16),
+                      fontWeight: FontWeight.w600,
+                      color: isSelected ? Colors.white : context.appColors.textPrimary,
+                    ),
+                  ),
                 ),
-            ],
+                if (!isUsedInMatch)
+                  SpeakerButton(
+                    text: word,
+                    iconSize: Responsive.scale(context, 16, 18, 20),
+                    buttonSize: Responsive.scale(context, 28, 32, 36),
+                    iconColor: isSelected ? Colors.white : Colors.deepPurple,
+                  ),
+              ],
+            ),
           ),
         ),
       ),

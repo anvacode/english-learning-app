@@ -1,6 +1,9 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+
 import '../logic/star_service.dart';
+import '../theme/app_colors_extension.dart';
 
 /// Widget StarCounter mejorado para mostrar estrellas del usuario.
 /// 
@@ -21,7 +24,7 @@ class StarCounter extends StatefulWidget {
   /// Color del ícono. Por defecto: Colors.amber[700]
   final Color? iconColor;
   
-  /// Color del texto. Por defecto: Colors.black87
+  /// Color del texto. Por defecto: color de texto primario del tema
   final Color? textColor;
   
   /// Si muestra un fondo decorativo. Por defecto: true
@@ -157,7 +160,7 @@ class _StarCounterState extends State<StarCounter>
   @override
   Widget build(BuildContext context) {
     final iconColor = widget.iconColor ?? Colors.amber[700]!;
-    final textColor = widget.textColor ?? Colors.black87;
+    final textColor = widget.textColor ?? context.appColors.textPrimary;
 
     // Estado de carga
     if (_isLoading) {
@@ -191,7 +194,7 @@ class _StarCounterState extends State<StarCounter>
           'Cargando...',
           style: TextStyle(
             fontSize: widget.fontSize * 0.8,
-            color: Colors.grey[600],
+            color: context.appColors.textSecondary,
           ),
         ),
       ],
@@ -398,7 +401,6 @@ class _StarCounterWithRefreshState extends State<StarCounterWithRefresh> {
           key: _counterKey,
           iconSize: widget.iconSize,
           fontSize: widget.fontSize,
-          showBackground: true,
           refreshInterval: 0, // Desactivar auto-refresh
         ),
         const SizedBox(width: 8),

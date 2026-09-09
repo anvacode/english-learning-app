@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
+import '../logic/user_profile_service.dart';
 import '../models/shop_item.dart';
-import '../services/shop_service.dart';
-import '../services/theme_service.dart';
 import '../services/effects_service.dart';
 import '../services/powerup_service.dart';
-import '../logic/user_profile_service.dart';
+import '../services/shop_service.dart';
+import '../theme/app_colors_extension.dart';
+import '../widgets/app_scaffold.dart';
 import '../widgets/avatar_widget.dart';
+import '../widgets/responsive_snack_bar.dart';
 
 /// Pantalla para ver y gestionar los ítems comprados.
 /// 
@@ -26,14 +28,13 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
   bool _isLoading = true;
   
   // Estado de ítems activos
-  String? _activeThemeId;
   Set<String> _activeEffects = {};
   int _currentAvatarId = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _loadData();
   }
 
@@ -48,14 +49,6 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
       _currentAvatarId = profile.avatarId;
       _isLoading = false;
     });
-    
-    // Cargar tema activo del provider
-    if (mounted) {
-      final themeService = context.read<ThemeService>();
-      setState(() {
-        _activeThemeId = themeService.activeThemeId;
-      });
-    }
   }
 
   @override
@@ -70,31 +63,38 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mis Ítems'),
-        elevation: 0,
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.face), text: 'Avatares'),
-            Tab(icon: Icon(Icons.palette), text: 'Temas'),
-            Tab(icon: Icon(Icons.auto_awesome), text: 'Efectos'),
-            Tab(icon: Icon(Icons.flash_on), text: 'Power-ups'),
-          ],
-        ),
+    return AppScaffold(
+      currentIndex: -1,
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          const Text(
+            'Mis Ítems',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(icon: Icon(Icons.face), text: 'Avatares'),
+              Tab(icon: Icon(Icons.auto_awesome), text: 'Efectos'),
+              Tab(icon: Icon(Icons.flash_on), text: 'Power-ups'),
+            ],
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildAvatarsTab(),
+                      _buildEffectsTab(),
+                      _buildPowerUpsTab(),
+                    ],
+                  ),
+          ),
+        ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildAvatarsTab(),
-                _buildThemesTab(),
-                _buildEffectsTab(),
-                _buildPowerUpsTab(),
-              ],
-            ),
     );
   }
 
@@ -148,130 +148,6 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
     );
   }
 
-  Widget _buildThemesTab() {
-    final themes = _getItemsByType(ShopItemType.theme);
-    
-    if (themes.isEmpty) {
-      return _buildEmptyState(
-        icon: Icons.palette,
-        message: 'No tienes temas comprados',
-        hint: 'Visita la tienda para comprar temas coloridos',
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: themes.length + 1, // +1 para el tema por defecto
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          // Tema por defecto
-          return _buildThemeCard(
-            themeId: null,
-            name: 'Tema por defecto',
-            description: 'El tema clásico de la aplicación',
-            icon: '💜',
-            isActive: _activeThemeId == null,
-          );
-        }
-        
-        final theme = themes[index - 1];
-        final themeId = theme.metadata?['themeId'] as String?;
-        final isActive = _activeThemeId == themeId;
-
-        return _buildThemeCard(
-          themeId: themeId,
-          name: theme.name,
-          description: theme.description,
-          icon: theme.icon,
-          isActive: isActive,
-        );
-      },
-    );
-  }
-
-  Widget _buildThemeCard({
-    required String? themeId,
-    required String name,
-    required String description,
-    required String icon,
-    required bool isActive,
-  }) {
-    final themeInfo = ThemeService.getThemeInfo(themeId ?? 'default');
-    final previewColors = themeInfo['previewColors'] as List<Color>? ?? [];
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: isActive
-            ? BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
-            : BorderSide.none,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(icon, style: const TextStyle(fontSize: 32)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        description,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (isActive)
-                  Chip(
-                    label: const Text('Activo'),
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                  )
-                else
-                  ElevatedButton(
-                    onPressed: () => _activateTheme(themeId),
-                    child: const Text('Usar'),
-                  ),
-              ],
-            ),
-            if (previewColors.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Row(
-                children: previewColors.map((color) {
-                  return Container(
-                    width: 30,
-                    height: 30,
-                    margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildEffectsTab() {
     final effects = _getItemsByType(ShopItemType.effect);
     
@@ -302,7 +178,7 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: isActive ? Colors.amber[100] : Colors.grey[100],
+                color: isActive ? Colors.amber[100] : context.appColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -371,7 +247,7 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
                                 colors: [Colors.orange[400]!, Colors.amber[600]!],
                               )
                             : null,
-                        color: isActive ? null : Colors.grey[200],
+                        color: isActive ? null : context.appColors.surfaceVariant,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
@@ -396,7 +272,7 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
                           Text(
                             powerUp.description,
                             style: TextStyle(
-                              color: Colors.grey[600],
+                              color: context.appColors.textSecondary,
                               fontSize: 14,
                             ),
                           ),
@@ -431,9 +307,9 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
                         size: 28,
                       )
                     else
-                      const Icon(
+                      Icon(
                         Icons.timer_off,
-                        color: Colors.grey,
+                        color: context.appColors.textSecondary,
                         size: 28,
                       ),
                   ],
@@ -457,14 +333,14 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 64, color: Colors.grey[400]),
+            Icon(icon, size: 64, color: context.appColors.textTertiary),
             const SizedBox(height: 16),
             Text(
               message,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
+                color: context.appColors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -473,7 +349,7 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
               hint,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[500],
+                color: context.appColors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -490,47 +366,16 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
         _currentAvatarId = avatarId;
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Avatar actualizado'),
-            backgroundColor: Colors.green,
-          ),
+        ResponsiveSnackBar.showSuccess(
+          context,
+          message: 'Avatar actualizado',
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _activateTheme(String? themeId) async {
-    try {
-      final themeService = context.read<ThemeService>();
-      await themeService.setActiveTheme(themeId);
-      setState(() {
-        _activeThemeId = themeId;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Tema actualizado'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+        ResponsiveSnackBar.showError(
+          context,
+          message: 'Error: $e',
         );
       }
     }
@@ -547,20 +392,16 @@ class _PurchasedItemsScreenState extends State<PurchasedItemsScreen>
         }
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(active ? 'Efecto activado' : 'Efecto desactivado'),
-            backgroundColor: Colors.green,
-          ),
+        ResponsiveSnackBar.showSuccess(
+          context,
+          message: active ? 'Efecto activado' : 'Efecto desactivado',
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+        ResponsiveSnackBar.showError(
+          context,
+          message: 'Error: $e',
         );
       }
     }

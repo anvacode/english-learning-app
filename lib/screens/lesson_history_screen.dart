@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+
+import '../data/lessons_data.dart';
 import '../logic/activity_result_service.dart';
 import '../models/activity_result.dart';
 import '../models/lesson.dart';
-import '../data/lessons_data.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_colors_extension.dart';
+import '../utils/responsive.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/responsive_container.dart';
 
 class LessonHistoryScreen extends StatefulWidget {
   const LessonHistoryScreen({super.key});
@@ -25,7 +30,6 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
   Future<void> _loadHistory() async {
     final results = await ActivityResultService.getActivityResults();
 
-    // Agrupar por lessonId y mostrar un resumen por lección
     final Map<String, List<ActivityResult>> groupedByLesson = {};
     for (final result in results) {
       if (result.lessonId.isNotEmpty) {
@@ -33,12 +37,10 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
       }
     }
 
-    // Convertir a lista de resúmenes
     List<MapEntry<String, List<ActivityResult>>> entries = groupedByLesson
         .entries
         .toList();
 
-    // Ordenar por fecha más reciente (usar el timestamp del último resultado)
     entries.sort((a, b) {
       final aTime = a.value.last.timestamp;
       final bTime = b.value.last.timestamp;
@@ -53,13 +55,16 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Historial de Lecciones'), elevation: 0),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _results.isEmpty
-          ? _buildEmptyState()
-          : _buildHistoryList(),
+    return AppScaffold(
+      currentIndex: -1,
+      child: ResponsiveContainer(
+        maxWidth: 700,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _results.isEmpty
+                ? _buildEmptyState()
+                : _buildHistoryList(),
+      ),
     );
   }
 
@@ -68,20 +73,41 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.history_rounded, size: 80, color: Colors.grey[400]),
-          const SizedBox(height: 16),
+          Container(
+            padding: EdgeInsets.all(Responsive.scale(context, 20, 24, 28)),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  context.appColors.surfaceVariant.withAlpha(20),
+                  context.appColors.surfaceVariant.withAlpha(5),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.history_rounded,
+              size: Responsive.scale(context, 60, 70, 80),
+              color: context.appColors.textTertiary,
+            ),
+          ),
+          SizedBox(height: Responsive.scale(context, 16, 20, 24)),
           Text(
             'Sin historial todavía',
             style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
+              fontSize: Responsive.scale(context, 18, 20, 22),
+              color: context.appColors.textSecondary,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: Responsive.scale(context, 8, 10, 12)),
           Text(
             'Completa lecciones para ver tu progreso aquí',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: TextStyle(
+              fontSize: Responsive.scale(context, 13, 14, 15),
+              color: context.appColors.textSecondary,
+            ),
           ),
         ],
       ),
@@ -89,7 +115,6 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
   }
 
   Widget _buildHistoryList() {
-    // Agrupar resultados por lessonId
     final Map<String, List<ActivityResult>> groupedByLesson = {};
     for (final result in _results) {
       groupedByLesson.putIfAbsent(result.lessonId, () => []).add(result);
@@ -97,7 +122,6 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
 
     final entries = groupedByLesson.entries.toList();
 
-    // Ordenar por fecha más reciente
     entries.sort((a, b) {
       final aTime = a.value.last.timestamp;
       final bTime = b.value.last.timestamp;
@@ -105,14 +129,13 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
     });
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(Responsive.scale(context, 16, 20, 24)),
       itemCount: entries.length,
       itemBuilder: (context, index) {
         final entry = entries[index];
         final lessonResults = entry.value;
         final lessonId = entry.key;
 
-        // Calcular métricas de esta lección
         final totalAttempts = lessonResults.length;
         final correctAttempts = lessonResults.where((r) => r.isCorrect).length;
         final accuracy = totalAttempts > 0
@@ -120,7 +143,6 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
             : 0;
         final lastActivity = lessonResults.last.timestamp;
 
-        // Buscar información de la lección
         Lesson? lesson;
         try {
           lesson = lessonsList.firstWhere((l) => l.id == lessonId);
@@ -128,71 +150,138 @@ class _LessonHistoryScreenState extends State<LessonHistoryScreen> {
           lesson = null;
         }
 
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        return Container(
+          margin: EdgeInsets.only(bottom: Responsive.scale(context, 12, 14, 16)),
+          padding: EdgeInsets.all(Responsive.scale(context, 14, 16, 18)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant.withAlpha(120),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: context.appColors.shadow,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(12),
-            leading: CircleAvatar(
-              backgroundColor: AppColors.primary.withAlpha(25),
-              child: Text(
-                lesson?.title.isNotEmpty == true
-                    ? lesson!.title[0].toUpperCase()
-                    : lessonId.replaceAll('lesson_', '')[0].toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+          child: Row(
+            children: [
+              Container(
+                width: Responsive.scale(context, 48, 52, 56),
+                height: Responsive.scale(context, 48, 52, 56),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary.withAlpha(25),
+                      AppColors.primary.withAlpha(10),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Center(
+                  child: Text(
+                    lesson?.title.isNotEmpty == true
+                        ? lesson!.title[0].toUpperCase()
+                        : lessonId.replaceAll('lesson_', '')[0].toUpperCase(),
+                    style: TextStyle(
+                      fontSize: Responsive.scale(context, 18, 20, 22),
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
                 ),
               ),
-            ),
-            title: Text(
-              lesson?.title ?? 'Lección ${lessonId.replaceAll("lesson_", "")}',
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text(
-                  _formatDate(lastActivity),
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 4),
-                Row(
+              SizedBox(width: Responsive.scale(context, 12, 14, 16)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      accuracy >= 70 ? Icons.check_circle : Icons.info_outline,
-                      size: 16,
-                      color: accuracy >= 70
-                          ? Colors.green[600]
-                          : Colors.orange[600],
-                    ),
-                    const SizedBox(width: 4),
                     Text(
-                      '$accuracy% acierto',
+                      lesson?.title ?? 'Lección ${lessonId.replaceAll("lesson_", "")}',
                       style: TextStyle(
-                        fontSize: 12,
-                        color: accuracy >= 70
-                            ? Colors.green[600]
-                            : Colors.orange[600],
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
+                        fontSize: Responsive.scale(context, 15, 16, 17),
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(height: 4),
                     Text(
-                      '$totalAttempts intentos',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      _formatDate(lastActivity),
+                      style: TextStyle(
+                        fontSize: Responsive.scale(context, 12, 13, 14),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: Responsive.scale(context, 8, 10, 12),
+                            vertical: Responsive.scale(context, 4, 5, 6),
+                          ),
+                          decoration: BoxDecoration(
+                            color: accuracy >= 70
+                                ? Colors.green.withAlpha(20)
+                                : Colors.orange.withAlpha(20),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                accuracy >= 70 ? Icons.check_circle : Icons.info_outline,
+                                size: Responsive.scale(context, 14, 15, 16),
+                                color: accuracy >= 70
+                                    ? Colors.green[600]
+                                    : Colors.orange[600],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '$accuracy% acierto',
+                                style: TextStyle(
+                                  fontSize: Responsive.scale(context, 12, 13, 14),
+                                  color: accuracy >= 70
+                                      ? Colors.green[600]
+                                      : Colors.orange[600],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: Responsive.scale(context, 8, 10, 12)),
+                        Text(
+                          '$totalAttempts intentos',
+                          style: TextStyle(
+                            fontSize: Responsive.scale(context, 12, 13, 14),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-            trailing: accuracy >= 70
-                ? const Chip(label: Text('✅'), padding: EdgeInsets.zero)
-                : null,
+              ),
+              if (accuracy >= 70)
+                Container(
+                  padding: EdgeInsets.all(Responsive.scale(context, 6, 8, 10)),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withAlpha(20),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.emoji_events_rounded,
+                    color: Colors.green[600],
+                    size: Responsive.scale(context, 20, 22, 24),
+                  ),
+                ),
+            ],
           ),
         );
       },

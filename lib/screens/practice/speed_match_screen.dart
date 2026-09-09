@@ -1,14 +1,20 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math' show Random;
-import '../../models/lesson_item.dart';
-import '../../models/activity_result.dart';
-import '../../logic/activity_result_service.dart';
-import '../../logic/star_service.dart';
-import '../../logic/practice_service.dart';
-import '../../services/audio_service.dart';
-import '../../widgets/lesson_image.dart';
+
+import 'package:flutter/material.dart';
+
 import '../../data/lessons_data.dart';
+import '../../logic/activity_result_service.dart';
+import '../../logic/practice_service.dart';
+import '../../logic/star_service.dart';
+import '../../models/activity_result.dart';
+import '../../models/lesson_item.dart';
+import '../../services/audio_service.dart';
+import '../../theme/app_colors_extension.dart';
+import '../../theme/text_styles.dart';
+import '../../utils/responsive.dart';
+import '../../widgets/animated_progress_bar.dart';
+import '../../widgets/lesson_image.dart';
 
 /// Pantalla de Speed Match:
 /// - Juego de matching contra el tiempo
@@ -259,192 +265,276 @@ class _SpeedMatchScreenState extends State<SpeedMatchScreen> {
   @override
   Widget build(BuildContext context) {
     final progress = _correctMatches / _items.length;
+    final hPadding = Responsive.horizontalPadding(context);
+    final vPadding = Responsive.verticalPadding(context);
+    final isDesktop = !Responsive.isMobile(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('⚡ Speed Match'),
+        title: Text('⚡ Speed Match', style: context.appBarTitle),
+        backgroundColor: Colors.orange,
+        foregroundColor: Colors.white,
         actions: [
-          // Timer display
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: EdgeInsets.only(right: hPadding),
             child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: _secondsRemaining <= 10 ? Colors.red : Colors.orange,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.timer, color: Colors.white, size: 20),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$_secondsRemaining',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              child: _buildTimerBadge(context),
             ),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Progress bar
-          LinearProgressIndicator(
-            value: progress,
-            backgroundColor: Colors.grey[300],
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-            minHeight: 8,
+          AnimatedProgressBar(
+            progress: progress,
+            color: Colors.orange,
+            label: '$_correctMatches/${_items.length}',
           ),
-
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  // Instruction
-                  const Text(
-                    '¡Empareja las imágenes con las palabras lo más rápido posible!',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
+            child: isDesktop
+                ? _buildDesktopLayout(context, hPadding, vPadding)
+                : _buildMobileLayout(context, hPadding, vPadding),
+          ),
+        ],
+      ),
+    );
+  }
 
-                  // Score
-                  Text(
-                    'Correctos: $_correctMatches/${_items.length}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Images grid
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 1,
-                        ),
-                    itemCount: _items.length,
-                    itemBuilder: (context, index) {
-                      final item = _items[index];
-                      final isMatched = _matchedIds.contains(item.id);
-                      final isSelected = _selectedImageId == item.id;
-
-                      return GestureDetector(
-                        onTap: () => _selectImage(item.id),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: isMatched
-                                  ? Colors.green
-                                  : isSelected
-                                  ? Colors.orange
-                                  : Colors.grey[300]!,
-                              width: isSelected || isMatched ? 4 : 2,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            color: isMatched ? Colors.green[100] : Colors.white,
-                          ),
-                          child: isMatched
-                              ? const Center(
-                                  child: Icon(
-                                    Icons.check_circle,
-                                    color: Colors.green,
-                                    size: 48,
-                                  ),
-                                )
-                              : ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: LessonImage(
-                                    imagePath: item.stimulusImageAsset,
-                                    fallbackColor: item.stimulusColor,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Words list
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    alignment: WrapAlignment.center,
-                    children: _items.map((item) {
-                      final word = item.options[item.correctAnswerIndex];
-                      final isMatched = _matchedIds.contains(item.id);
-                      final isSelected = _selectedWord == word;
-
-                      return GestureDetector(
-                        onTap: () => _selectWord(word),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isMatched
-                                ? Colors.green[100]
-                                : isSelected
-                                ? Colors.orange
-                                : Colors.grey[200],
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: isMatched
-                                  ? Colors.green
-                                  : isSelected
-                                  ? Colors.orange
-                                  : Colors.grey[400]!,
-                              width: 2,
-                            ),
-                          ),
-                          child: Text(
-                            word,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isSelected
-                                  ? Colors.white
-                                  : isMatched
-                                  ? Colors.green[900]
-                                  : Colors.black87,
-                              decoration: isMatched
-                                  ? TextDecoration.lineThrough
-                                  : TextDecoration.none,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
+  Widget _buildTimerBadge(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: Responsive.scale(context, 10, 12, 14),
+        vertical: Responsive.scale(context, 5, 6, 7),
+      ),
+      decoration: BoxDecoration(
+        color: _secondsRemaining <= 10 ? Colors.red : Colors.orange,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.timer, color: Colors.white, size: Responsive.scale(context, 18, 20, 22)),
+          SizedBox(width: Responsive.scale(context, 3, 4, 5)),
+          Text(
+            '$_secondsRemaining',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: Responsive.scale(context, 16, 18, 20),
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMobileLayout(BuildContext context, double hPadding, double vPadding) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: hPadding, vertical: vPadding),
+      child: Column(
+        children: [
+          Text(
+            '¡Empareja las imágenes con las palabras!',
+            style: TextStyle(
+              fontSize: Responsive.scale(context, 16, 18, 20),
+              fontWeight: FontWeight.bold,
+              color: context.appColors.textPrimary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: Responsive.scale(context, 8, 12, 16)),
+          Text(
+            'Correctos: $_correctMatches/${_items.length}',
+            style: TextStyle(
+              fontSize: Responsive.scale(context, 14, 16, 18),
+              fontWeight: FontWeight.bold,
+              color: Colors.orange,
+            ),
+          ),
+          SizedBox(height: Responsive.scale(context, 12, 16, 20)),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+            ),
+            itemCount: _items.length,
+            itemBuilder: (context, index) => _buildImageCard(context, index),
+          ),
+          SizedBox(height: Responsive.scale(context, 12, 16, 20)),
+          _buildWordButtons(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopLayout(BuildContext context, double hPadding, double vPadding) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: hPadding, vertical: vPadding),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '¡Empareja las imágenes con las palabras!',
+                style: TextStyle(
+                  fontSize: Responsive.scale(context, 18, 20, 22),
+                  fontWeight: FontWeight.bold,
+                  color: context.appColors.textPrimary,
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Responsive.scale(context, 12, 14, 16),
+                  vertical: Responsive.scale(context, 6, 8, 10),
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.orange[50],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Correctos: $_correctMatches/${_items.length}',
+                  style: TextStyle(
+                    fontSize: Responsive.scale(context, 15, 16, 18),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.scale(context, 16, 20, 24)),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 500),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
+                        itemCount: _items.length,
+                        itemBuilder: (context, index) => _buildImageCard(context, index),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: Responsive.scale(context, 24, 32, 40)),
+                Expanded(
+                  flex: 2,
+                  child: Center(
+                    child: _buildWordButtons(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageCard(BuildContext context, int index) {
+    final item = _items[index];
+    final isMatched = _matchedIds.contains(item.id);
+    final isSelected = _selectedImageId == item.id;
+
+    return GestureDetector(
+      onTap: () => _selectImage(item.id),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isMatched
+                ? Colors.green
+                : isSelected
+                    ? Colors.orange
+                    : context.appColors.border,
+            width: isSelected || isMatched ? 3 : 2,
+          ),
+          borderRadius: BorderRadius.circular(Responsive.borderRadius(context)),
+          color: isMatched ? Colors.green[100] : context.appColors.cardBackground,
+        ),
+        child: isMatched
+            ? Center(
+                child: Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: Responsive.scale(context, 24, 28, 32),
+                ),
+              )
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(Responsive.borderRadius(context) - 2),
+                child: LessonImage(
+                  imagePath: item.stimulusImageAsset,
+                  fallbackColor: item.stimulusColor,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildWordButtons(BuildContext context) {
+    return Wrap(
+      spacing: Responsive.scale(context, 8, 10, 12),
+      runSpacing: Responsive.scale(context, 8, 10, 12),
+      alignment: WrapAlignment.center,
+      children: _items.map((item) {
+        final word = item.options[item.correctAnswerIndex];
+        final isMatched = _matchedIds.contains(item.id);
+        final isSelected = _selectedWord == word;
+
+        return GestureDetector(
+          onTap: () => _selectWord(word),
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: Responsive.scale(context, 14, 16, 20),
+              vertical: Responsive.scale(context, 8, 10, 12),
+            ),
+            decoration: BoxDecoration(
+              color: isMatched
+                  ? Colors.green[100]
+                  : isSelected
+                      ? Colors.orange
+                      : context.appColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isMatched
+                    ? Colors.green
+                    : isSelected
+                        ? Colors.orange
+                        : context.appColors.border,
+                width: 2,
+              ),
+            ),
+            child: Text(
+              word,
+              style: TextStyle(
+                fontSize: Responsive.scale(context, 13, 14, 16),
+                fontWeight: FontWeight.bold,
+                color: isSelected
+                    ? Colors.white
+                    : isMatched
+                        ? Colors.green[900]
+                        : context.appColors.textPrimary,
+                decoration: isMatched
+                    ? TextDecoration.lineThrough
+                    : TextDecoration.none,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

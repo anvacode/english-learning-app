@@ -23,33 +23,57 @@ enum LessonMasteryStatus {
 /// - inProgress: No LessonCompletion, but at least one ActivityResult exists
 /// - notStarted: No LessonCompletion and no ActivityResult
 class MasteryEvaluator {
-  /// Evalúa el estado de dominio de una lección.
-  /// 
-  /// [lessonId] identificador único de la lección.
-  /// 
-  /// Retorna:
-  /// - [LessonMasteryStatus.mastered] si LessonCompletion existe
-  /// - [LessonMasteryStatus.inProgress] si hay ActivityResults pero no LessonCompletion
-  /// - [LessonMasteryStatus.notStarted] si no hay registro alguno
-  Future<LessonMasteryStatus> evaluateLesson(String lessonId) async {
-    // Check 1: Is this lesson completed (mastered)?
-    final isCompleted = await LessonCompletionService.isLessonCompleted(lessonId);
-    if (isCompleted) {
-      return LessonMasteryStatus.mastered;
-    }
+  static final Map<String, LessonMasteryStatus> _cache = {};
+  static bool _cacheLoaded = false;
 
-    // Check 2: Has this lesson been attempted?
+  static Future<void> _loadCache() async {
+    if (_cacheLoaded) return;
+
+    final completedIds = await LessonCompletionService.getCompletedLessonIds();
     final allResults = await ActivityResultService.getActivityResults();
-    final lessonResults = allResults
-        .where((result) => result.lessonId == lessonId)
-        .toList();
 
-    if (lessonResults.isEmpty) {
-      return LessonMasteryStatus.notStarted;
+    final lessonIds = allResults.map((r) => r.lessonId).toSet();
+    lessonIds.addAll(completedIds);
+
+    for (final lessonId in lessonIds) {
+      if (completedIds.contains(lessonId)) {
+        _cache[lessonId] = LessonMasteryStatus.mastered;
+      } else {
+        final hasResults = allResults.any((r) => r.lessonId == lessonId);
+        _cache[lessonId] = hasResults
+            ? LessonMasteryStatus.inProgress
+            : LessonMasteryStatus.notStarted;
+      }
     }
 
-    // Has ActivityResults but no LessonCompletion = in progress
-    return LessonMasteryStatus.inProgress;
+    _cacheLoaded = true;
+  }
+
+  static void invalidateCache() {
+    _cache.clear();
+    _cacheLoaded = false;
+  }
+
+  Future<LessonMasteryStatus> evaluateLesson(String lessonId) async {
+    await _loadCache();
+
+    if (_cache.containsKey(lessonId)) {
+      return _cache[lessonId]!;
+    }
+
+    return LessonMasteryStatus.notStarted;
+  }
+
+  /// Devuelve el estado de una lección de forma síncrona si el cache está cargado.
+  /// Si el cache no está cargado, devuelve notStarted.
+  LessonMasteryStatus evaluateLessonSync(String lessonId) {
+    if (!_cacheLoaded) return LessonMasteryStatus.notStarted;
+    return _cache[lessonId] ?? LessonMasteryStatus.notStarted;
+  }
+
+  /// Carga el cache si no está cargado. Útil para asegurar que los datos están disponibles.
+  Future<void> ensureCacheLoaded() async {
+    await _loadCache();
   }
 
   /// Evalúa si todas las lecciones en una lista están dominadas.

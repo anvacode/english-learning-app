@@ -1,10 +1,12 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../models/lesson.dart';
-import '../models/lesson_item.dart';
-import '../models/lesson_exercise.dart';
 import '../models/lesson_category.dart';
+import '../models/lesson_exercise.dart';
+import '../models/lesson_item.dart';
 import '../models/lesson_level.dart';
 
 /// Carga lecciones desde JSON con fallback a datos hardcodeados.

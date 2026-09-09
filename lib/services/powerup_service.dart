@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'shop_service.dart';
+
 import '../models/shop_item.dart';
+import 'shop_service.dart';
 
 /// Servicio para gestionar los power-ups de la aplicación.
 /// 

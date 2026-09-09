@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../screens/auth/register_screen.dart';
-import '../screens/diagnostic/diagnostic_intro_screen.dart';
+
 import '../logic/auth_provider.dart';
 import '../services/auth_prompt_service.dart';
-import '../services/diagnostic_service.dart';
+import '../theme/app_colors_extension.dart';
+import '../widgets/responsive_snack_bar.dart';
 
 /// Diálogo que invita al usuario a crear una cuenta o iniciar sesión.
 ///
@@ -16,13 +16,12 @@ class AuthPromptDialog extends StatefulWidget {
 
   const AuthPromptDialog({super.key, this.isFromOnboarding = false});
 
-  static Future<bool?> show(
+  static Future<String?> show(
     BuildContext context, {
     bool isFromOnboarding = false,
   }) {
-    return showDialog<bool>(
+    return showDialog<String>(
       context: context,
-      barrierDismissible: true,
       builder: (context) =>
           AuthPromptDialog(isFromOnboarding: isFromOnboarding),
     );
@@ -38,6 +37,7 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   bool _isLoading = false;
+  bool _isNavigating = false;
 
   @override
   void initState() {
@@ -68,20 +68,18 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
   }
 
   void _navigateToRegister() async {
+    if (_isNavigating) return;
+    _isNavigating = true;
+
     await AuthPromptService.markPromptShownForCurrentCycle();
-    if (widget.isFromOnboarding) {
-      await AuthPromptService.markPromptShownAfterOnboarding();
-    }
+    await AuthPromptService.markPromptShownAfterOnboarding();
     if (mounted) {
-      Navigator.of(context).pop(true);
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (context) => const RegisterScreen()));
+      Navigator.of(context).pop('register');
     }
   }
 
   Future<void> _signInWithGoogle() async {
-    if (_isLoading) return;
+    if (_isLoading || _isNavigating) return;
 
     setState(() => _isLoading = true);
 
@@ -90,44 +88,20 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
       await authProvider.signInWithGoogle();
 
       if (mounted) {
+        _isNavigating = true;
         await AuthPromptService.markPromptShownForCurrentCycle();
-        if (widget.isFromOnboarding) {
-          await AuthPromptService.markPromptShownAfterOnboarding();
-        }
-
-        final diagnosticCompleted =
-            await DiagnosticService.isDiagnosticCompleted();
+        await AuthPromptService.markPromptShownAfterOnboarding();
 
         if (!context.mounted) return;
 
-        if (!diagnosticCompleted) {
-          Navigator.of(context).pop(true);
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const DiagnosticIntroScreen(),
-            ),
-            (route) => false,
-          );
-        } else {
-          Navigator.of(context).pop(true);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('¡Sesión iniciada correctamente!'),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
+        Navigator.of(context).pop('google');
       }
     } catch (e) {
       if (mounted) {
         if (!e.toString().contains('cancelado')) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${e.toString()}'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
+          ResponsiveSnackBar.showError(
+            context,
+            message: 'Error: ${e.toString()}',
           );
         }
       }
@@ -139,12 +113,13 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
   }
 
   void _continueAsGuest() async {
+    if (_isNavigating) return;
+    _isNavigating = true;
+
     await AuthPromptService.markPromptShownForCurrentCycle();
-    if (widget.isFromOnboarding) {
-      await AuthPromptService.markPromptShownAfterOnboarding();
-    }
+    await AuthPromptService.markPromptShownAfterOnboarding();
     if (mounted) {
-      Navigator.of(context).pop(false);
+      Navigator.of(context).pop('guest');
     }
   }
 
@@ -163,14 +138,17 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
         child: Container(
           constraints: const BoxConstraints(maxWidth: 360),
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.deepPurple[50]!, Colors.indigo[50]!],
-            ),
-            borderRadius: BorderRadius.circular(28),
-          ),
+           decoration: BoxDecoration(
+             gradient: context.isDarkMode
+                 ? null
+                 : LinearGradient(
+                     begin: Alignment.topLeft,
+                     end: Alignment.bottomRight,
+                     colors: [Colors.deepPurple[50]!, Colors.indigo[50]!],
+                   ),
+             color: context.isDarkMode ? context.appColors.cardBackground : null,
+             borderRadius: BorderRadius.circular(28),
+           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -213,14 +191,14 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
 
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.deepPurple[100]!,
-                    width: 1.5,
-                  ),
-                ),
+               decoration: BoxDecoration(
+                 color: context.appColors.surface,
+                 borderRadius: BorderRadius.circular(16),
+                 border: Border.all(
+                   color: Colors.deepPurple[100]!,
+                   width: 1.5,
+                 ),
+               ),
                 child: Column(
                   children: [
                     _buildBenefitRow(
@@ -260,7 +238,7 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
                     ],
                   ),
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _navigateToRegister,
+                    onPressed: (_isLoading || _isNavigating) ? null : _navigateToRegister,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
@@ -285,14 +263,14 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
                 width: double.infinity,
                 height: 50,
                 child: OutlinedButton.icon(
-                  onPressed: _isLoading ? null : _signInWithGoogle,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.deepPurple[400]!, width: 2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    backgroundColor: Colors.white,
-                  ),
+                  onPressed: (_isLoading || _isNavigating) ? null : _signInWithGoogle,
+                   style: OutlinedButton.styleFrom(
+                     side: BorderSide(color: Colors.deepPurple[400]!, width: 2),
+                     shape: RoundedRectangleBorder(
+                       borderRadius: BorderRadius.circular(14),
+                     ),
+                     backgroundColor: context.appColors.cardBackground,
+                   ),
                   icon: Container(
                     width: 22,
                     height: 22,
@@ -333,15 +311,15 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
               const SizedBox(height: 16),
 
               TextButton(
-                onPressed: _isLoading ? null : _continueAsGuest,
-                child: Text(
-                  'Continuar como invitado',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                onPressed: (_isLoading || _isNavigating) ? null : _continueAsGuest,
+                 child: Text(
+                   'Continuar como invitado',
+                   style: TextStyle(
+                     fontSize: 15,
+                     color: context.appColors.textSecondary,
+                     fontWeight: FontWeight.w500,
+                   ),
+                 ),
               ),
             ],
           ),
@@ -356,14 +334,14 @@ class _AuthPromptDialogState extends State<AuthPromptDialog>
         Icon(icon, size: 20, color: Colors.deepPurple[500]),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[800],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+           child: Text(
+             text,
+             style: TextStyle(
+               fontSize: 14,
+               color: context.appColors.textPrimary,
+               fontWeight: FontWeight.w500,
+             ),
+           ),
         ),
       ],
     );
@@ -394,6 +372,6 @@ class AuthPromptHelper {
       isFromOnboarding: isFromOnboarding,
     );
 
-    return result ?? false;
+    return result == 'register' || result == 'google';
   }
 }

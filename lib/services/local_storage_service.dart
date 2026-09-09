@@ -1,12 +1,14 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import '../models/user_sync_data.dart';
-import '../models/sync_operation.dart';
+import 'package:sqflite/sqflite.dart';
+
 import '../models/guest_user.dart';
 import '../models/sync_conflict.dart';
+import '../models/sync_operation.dart';
+import '../models/user_sync_data.dart';
 
 class LocalStorageService {
   static const String _databaseName = 'english_ai_app.db';

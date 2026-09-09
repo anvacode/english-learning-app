@@ -39,14 +39,14 @@ Una aplicación educativa interactiva para que niños aprendan inglés de forma 
 | **Test Diagnóstico Visual** | 10 preguntas con emojis diseñadas para niños de 5-8 años |
 | **3 Niveles de Dificultad** | Principiante, Intermedio, Avanzado |
 | **Seguimiento de Progreso** | Lecciones no iniciadas, en progreso, dominadas |
-| **Maestría por Lección** | Requiere 100% de respuestas correctas para dominar |
+| **Maestría por Lección** | Requiere 80% de precisión y todos los items completados |
 
 ### 🎮 Gamificación Completa
 
 | Feature | Descripción |
 |---------|-------------|
 | **Sistema de Estrellas** | Gana estrellas por completar lecciones y ejercicios |
-| **Tienda Integral** | Avatares, temas de color, efectos visuales, power-ups |
+| **Tienda Integral** | Avatares, efectos visuales, power-ups |
 | **Logros/Badges** | Insignias por completar lecciones y alcanzar metas |
 | **Rachas Diarias** | Bonificaciones por práctica consistente |
 | **Power-ups** | Efectos temporales (ej: doble estrellas por 3 días) |
@@ -76,7 +76,6 @@ Una aplicación educativa interactiva para que niños aprendan inglés de forma 
 | Feature | Descripción |
 |---------|-------------|
 | **Diseño Responsive** | Breakpoints: 600px (móvil), 900px (tablet), 1200px (desktop) |
-| **Temas Personalizables** | Múltiples temas de color comprables en la tienda |
 | **Modo Oscuro/Claro** | Soporte para temas del sistema |
 | **Animaciones** | Transiciones suaves, confeti, efectos visuales |
 | **Accesible para Niños** | Botones grandes, emojis claros, feedback visual |
@@ -102,7 +101,7 @@ Una aplicación educativa interactiva para que niños aprendan inglés de forma 
 |-------|-------------|
 | **Principiante** | Vocabulario básico, palabras simples |
 | **Intermedio** | Oraciones completas, gramática básica |
-| **Avanzado** | READING, escritura, expresiones complejas |
+| **Avanzado** | Reading, escritura, expresiones complejas |
 
 ---
 
@@ -227,25 +226,6 @@ flutter analyze
 
 # Estado actual: 18 tests passing, 0 errores
 ```
-
----
-
-## 🔮 Roadmap - Próximas Innovaciones
-
-### Fase 1: Enhancements de Gamificación
-- [ ] Sistema de Avatares animados
-- [ ] Rachas con recompensas diarias
-- [ ] Tabla de clasificación (opcional)
-
-### Fase 2: Features Innovadores
-- [ ] **Spaced Repetition System (SRS)** - Algoritmo SM-2 para vocabulario
-- [ ] **Chatbot Conversacional** - Práctica de diálogo libre
-- [ ] **Historias Interactivas** - Narrativas con decisiones
-
-### Fase 3: Funcionalidades Sociales
-- [ ] **Dashboard de Padres** - Reportes de progreso
-- [ ] **Aprendizaje Multiplayer** - Modo colaborativo
-- [ ] **AR (Realidad Aumentada)** - Vocabulario con cámara
 
 ---
 

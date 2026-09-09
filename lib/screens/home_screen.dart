@@ -1,47 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'lessons_screen.dart';
-import 'profile/profile_screen.dart';
-import 'settings_screen.dart';
-import 'achievements_screen.dart';
-import 'shop_screen.dart';
-import 'practice/practice_hub_screen.dart';
-import 'diagnostic/diagnostic_intro_screen.dart';
-import '../widgets/star_display.dart';
-import '../utils/responsive.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_icons.dart';
-import '../logic/auth_provider.dart';
+
 import '../dialogs/auth_prompt_dialog.dart';
+import '../logic/auth_provider.dart';
 import '../services/auth_prompt_service.dart';
 import '../services/diagnostic_service.dart';
+import '../services/firestore_progress_service.dart';
+import '../services/tutorial_service.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/connection_banner.dart';
+import 'auth/register_screen.dart';
+import 'diagnostic/diagnostic_intro_screen.dart';
+import 'home/home_grid_view.dart';
+import 'lessons_screen.dart';
+import 'practice/practice_hub_screen.dart';
+import 'settings_screen.dart';
+import 'tutorial/interactive_tutorial.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool showTutorial;
+
+  const HomeScreen({
+    super.key,
+    this.showTutorial = false,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
   bool _authPromptChecked = false;
   bool _diagnosticChecked = false;
   bool _isNavigating = false;
+  bool _showInteractiveTutorial = false;
 
   final List<Widget> _screens = [
-    const _HomeGridView(),
-    const LessonsScreen(),
-    const PracticeHubScreen(),
-    const SettingsScreen(),
+    const HomeGridView(),
+    const LessonsScreen(showNavBar: false),
+    const PracticeHubScreen(showNavBar: false),
+    const SettingsScreen(showNavBar: false),
   ];
 
   @override
   void initState() {
     super.initState();
+    _checkTutorialRequest();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      FirestoreProgressService().registerSession();
       _checkAuthAndDiagnostic();
     });
+  }
+
+  Future<void> _checkTutorialRequest() async {
+    final requested = await TutorialService.wasInteractiveTutorialRequested();
+    if (requested && mounted) {
+      await TutorialService.clearInteractiveTutorialRequest();
+      setState(() {
+        _showInteractiveTutorial = true;
+      });
+    }
   }
 
   Future<void> _checkAuthAndDiagnostic() async {
@@ -57,7 +76,19 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
       if (shouldShow && mounted && !_isNavigating) {
-        await AuthPromptDialog.show(context);
+        final result = await AuthPromptDialog.show(context);
+        
+        if (!mounted) return;
+        
+        if (result == 'register') {
+          _isNavigating = true;
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const RegisterScreen()),
+            (route) => false,
+          );
+          return;
+        } else if (result == 'google') {
+        }
       }
       _authPromptChecked = true;
     }
@@ -82,334 +113,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_currentIndex],
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withAlpha(20),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: AppColors.textTertiary,
-          selectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.normal,
-            fontSize: 12,
-          ),
-          elevation: 0,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(
-                _currentIndex == 0 ? AppIcons.home : Icons.home_outlined,
-              ),
-              label: 'Inicio',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                _currentIndex == 1 ? AppIcons.book : Icons.menu_book_outlined,
-              ),
-              label: 'Lecciones',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                _currentIndex == 2
-                    ? AppIcons.game
-                    : Icons.sports_esports_outlined,
-              ),
-              label: 'Práctica',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                _currentIndex == 3
-                    ? AppIcons.settings
-                    : Icons.settings_outlined,
-              ),
-              label: 'Configuración',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Widget que muestra el GridView principal con las 4 opciones.
-class _HomeGridView extends StatelessWidget {
-  const _HomeGridView();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: context.isMobile ? 80 : 120,
-            floating: false,
-            pinned: context.isMobile ? false : true,
-            snap: false,
-            elevation: context.isMobile ? 0 : 4,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-              title: Row(
-                children: [
-                  Text(
-                    'English Learning',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: context.isMobile ? 20 : 24,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (context.isMobile)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(30),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: StarDisplay(
-                        iconSize: 20,
-                        fontSize: 16,
-                        showBackground: false,
-                      ),
-                    ),
-                  const SizedBox(width: 8),
-                ],
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      right: -50,
-                      top: -50,
-                      child: Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withAlpha(10),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: -30,
-                      bottom: -30,
-                      child: Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withAlpha(10),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            actions: context.isMobile
-                ? []
-                : [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: Center(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withAlpha(30),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: StarDisplay(
-                            iconSize: 24,
-                            fontSize: 18,
-                            showBackground: false,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverGrid(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: context.isMobile
-                    ? 2
-                    : (context.isTablet ? 3 : 4),
-                childAspectRatio: context.isMobile ? 0.9 : 0.85,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              delegate: SliverChildListDelegate([
-                _buildMenuCard(
-                  context,
-                  emoji: '📚',
-                  title: 'Lecciones',
-                  subtitle: 'Aprende inglés',
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LessonsScreen()),
-                  ),
-                ),
-                _buildMenuCard(
-                  context,
-                  emoji: '👤',
-                  title: 'Perfil',
-                  subtitle: 'Tu progreso',
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFf093fb), Color(0xFFf5576c)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                  ),
-                ),
-                _buildMenuCard(
-                  context,
-                  emoji: '🏆',
-                  title: 'Logros',
-                  subtitle: 'Tus medallas',
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFfa709a), Color(0xFFfee140)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AchievementsScreen(),
-                    ),
-                  ),
-                ),
-                _buildMenuCard(
-                  context,
-                  emoji: '🏪',
-                  title: 'Tienda',
-                  subtitle: 'Compra items',
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFa8edea), Color(0xFFfed6e3)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ShopScreen()),
-                  ),
-                ),
-              ]),
-            ),
-          ),
+    Widget screen = AppScaffold(
+      currentIndex: _currentIndex,
+      child: Column(
+        children: [
+          const ConnectionBanner(),
+          Expanded(child: _screens[_currentIndex]),
         ],
       ),
     );
-  }
 
-  Widget _buildMenuCard(
-    BuildContext context, {
-    required String emoji,
-    required String title,
-    required String subtitle,
-    required Gradient gradient,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: (gradient as LinearGradient).colors.first.withAlpha(60),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-              spreadRadius: -5,
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              child: Padding(
-                padding: EdgeInsets.all(context.isMobile ? 16 : 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Solo el emoji, grande y destacado
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(
-                        vertical: context.isMobile ? 12 : 20,
-                      ),
-                      child: Text(
-                        emoji,
-                        style: TextStyle(fontSize: context.isMobile ? 56 : 72),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: context.isMobile ? 18 : 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: Colors.white.withAlpha(80),
-                        fontSize: context.isMobile ? 13 : 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+    if ((widget.showTutorial || _showInteractiveTutorial) && _currentIndex == 0) {
+      screen = InteractiveTutorial(
+        child: screen,
+        onComplete: () {
+          setState(() {
+            _showInteractiveTutorial = false;
+          });
+        },
+      );
+    }
+
+    return screen;
   }
 }

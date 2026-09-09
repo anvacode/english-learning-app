@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../widgets/responsive_snack_bar.dart';
 
 /// Sistema de mensajes de retroalimentación divertidos y llamativos para niños.
 ///
@@ -285,87 +285,15 @@ class FeedbackMessages {
 
 /// Extensiones para facilitar el uso de mensajes
 extension FeedbackMessagesExtension on BuildContext {
-  /// Muestra un snackbar con mensaje de éxito
   void showSuccessSnackbar(String message) {
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    ResponsiveSnackBar.showSuccess(this, message: message);
   }
 
-  /// Muestra un snackbar con mensaje de error
   void showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppColors.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 4),
-      ),
-    );
+    ResponsiveSnackBar.showError(this, message: message);
   }
 
-  /// Muestra un snackbar con mensaje informativo
   void showInfoSnackbar(String message) {
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.info_outline, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppColors.info,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    ResponsiveSnackBar.showInfo(this, message: message);
   }
 }
