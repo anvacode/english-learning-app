@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/practice_activity.dart';
 import '../models/lesson.dart';
 import '../data/lessons_data.dart';
+import '../services/sync_service.dart';
 
 /// Servicio para gestionar actividades de práctica y su progreso
 class PracticeService {
@@ -214,6 +215,7 @@ class PracticeService {
     final key = '$_progressPrefix${progress.activityId}';
     final jsonString = jsonEncode(progress.toJson());
     await prefs.setString(key, jsonString);
+    SyncService().scheduleSync();
   }
 
   /// Actualiza el progreso cuando se completa un ejercicio

@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/lesson_completion.dart';
+import '../services/sync_service.dart';
 
 /// Service for managing lesson completions (mastery records).
 /// 
@@ -35,6 +36,7 @@ class LessonCompletionService {
       _storageKey,
       jsonEncode(completions.map((c) => c.toJson()).toList()),
     );
+    SyncService().scheduleSync();
   }
 
   /// Check if a lesson has been completed (mastered).
