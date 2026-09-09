@@ -6,7 +6,7 @@ linter:
     prefer_const_constructors: true
     prefer_const_declarations: true
     prefer_const_literals_to_create_immutables: true
-    require_trailing_commas: true
+    # require_trailing_commas: true  # disabled - too many false positives in CI
     sort_child_properties_last: true
     avoid_print: true
     avoid_redundant_argument_values: true
