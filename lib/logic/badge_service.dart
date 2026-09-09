@@ -1,8 +1,9 @@
-import 'package:english_ai_app/logic/lesson_completion_service.dart';
-import 'package:english_ai_app/models/badge.dart';
-import 'package:english_ai_app/models/lesson.dart';
-import 'package:english_ai_app/services/sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../logic/lesson_completion_service.dart';
+import '../models/badge.dart';
+import '../models/lesson.dart';
+import '../services/sync_service.dart';
 
 /// Badge definitions for each lesson.
 final Map<String, Map<String, String>> badgeDefinitions = {
