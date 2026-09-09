@@ -203,7 +203,6 @@ class _InteractiveTutorialState extends State<InteractiveTutorial> {
               height: 56,
               child: CircularProgressIndicator(
                 color: Colors.white,
-                strokeWidth: 4,
               ),
             ),
             SizedBox(height: 20),
